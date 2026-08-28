@@ -1,5 +1,7 @@
 <script setup>
-import AppHeader from '../../components/AppHeader.vue'
+import { allProducts } from '../../data/store'
+import ProductCard from '../../components/ProductCard.vue'
+
 defineProps({
   navigate: {
     type: Function,
@@ -7,37 +9,37 @@ defineProps({
   },
 })
 
-const cards = [
-  ['Laptop deals', 'Performance machines for gaming, work, and study.'],
-  ['Mobile gear', 'Flagship phones, watches, audio, and daily carry tech.'],
-  ['Fast delivery', 'Tracked shipping and careful packaging for every order.'],
-]
+const recommendedProducts = allProducts.slice(0, 4)
 </script>
 
 <template>
-  <main class="flex min-h-screen items-center justify-center px-4 py-10 sm:px-6">
-    <section class="w-full max-w-4xl">
-      <div class="mb-8 text-center">
-        
-        <AppHeader />
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-12">
+    <div class="text-center max-w-md mx-auto bg-white p-8 rounded-lg border border-gray-200">
+      <div class="w-12 h-12 rounded-full bg-gray-100 text-gray-500 mx-auto flex items-center justify-center mb-4 text-xl">
+        🛒
+      </div>
+      <h1 class="text-lg font-bold text-gray-900">Your Cart is Empty</h1>
+      <p class="text-xs text-gray-500 mt-1">Add some products to your cart and check out.</p>
 
-        <div class="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-2xl border border-slate-800 bg-slate-900 text-cyan-400">
-          <svg class="h-12 w-12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2.25 3h1.4c.36 0 .67.25.73.61L6.75 15.75h10.5l2.25-8.25H5.76"/><circle cx="8" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/></svg>
-        </div>
-        <p class="mb-2 text-xs font-bold uppercase tracking-widest text-cyan-400">Cart is empty</p>
-        <h1 class="text-3xl font-extrabold tracking-tight text-white sm:text-5xl">Your next upgrade starts here</h1>
-        <p class="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-slate-500 sm:text-base">Add laptops, phones, accessories, and smart devices to your cart. Your selected technology will appear here before checkout.</p>
-        <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-          <a href="/#products" class="inline-flex min-h-12 items-center justify-center rounded-xl bg-cyan-500 px-7 text-sm font-extrabold text-white transition-colors hover:bg-cyan-600 active:bg-cyan-700" @click.prevent="navigate('home', '#products')">Browse products</a>
-          <a href="/login" class="inline-flex min-h-12 items-center justify-center rounded-xl border border-slate-800 px-7 text-sm font-bold text-slate-300 transition-colors hover:border-cyan-500 hover:text-white" @click.prevent="navigate('login')">Sign in</a>
-        </div>
+      <button
+        type="button"
+        @click="navigate('home', '#products')"
+        class="mt-5 px-4 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold"
+      >
+        Browse Products
+      </button>
+    </div>
+
+    <!-- Recommendations -->
+    <div class="mt-12">
+      <h2 class="text-base font-bold text-gray-900 mb-4">Recommended Products</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5">
+        <ProductCard
+          v-for="product in recommendedProducts"
+          :key="product.id"
+          :product="product"
+        />
       </div>
-      <div class="grid gap-4 sm:grid-cols-3">
-        <article v-for="item in cards" :key="item[0]" class="rounded-2xl border border-slate-800 bg-slate-900 p-5">
-          <h2 class="mb-2 text-sm font-bold text-white">{{ item[0] }}</h2>
-          <p class="text-sm leading-relaxed text-slate-500">{{ item[1] }}</p>
-        </article>
-      </div>
-    </section>
-  </main>
+    </div>
+  </div>
 </template>

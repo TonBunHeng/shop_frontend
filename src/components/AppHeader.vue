@@ -1,18 +1,51 @@
 <script setup>
-
+const props = defineProps({
+  navigate: {
+    type: Function,
+    required: true,
+  },
+})
 </script>
 
 <template>
-    <a href="/" class="flex shrink-0 items-center gap-2 no-underline" @click.prevent="navigate('home')">
-          <div class="w-8 h-8 bg-cyan-500 rounded-lg flex items-center justify-center">
-            <svg class="w-4 h-4 fill-white" viewBox="0 0 24 24">
-              <path d="M12 2C8.13 2 5 5.13 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.87-3.13-7-7-7z"/>
-            </svg>
-          </div>
-        <span class="text-white text-lg font-bold tracking-tight">Tech<span class="text-cyan-400">Nova</span></span>
-    </a>
+  <div class="bg-slate-900 text-slate-300 text-[11px] font-medium py-1.5 px-4 border-b border-slate-800">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+      <!-- Left: Announcement -->
+      <div class="flex items-center gap-2 truncate">
+        <span class="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-full bg-indigo-500/20 text-indigo-400 font-bold text-[10px] uppercase">
+          Special
+        </span>
+        <span class="truncate">
+          🎉 Free Express Shipping on orders over $100 · Use code <strong class="text-white font-mono">TECH10</strong> for 10% off
+        </span>
+      </div>
+
+      <!-- Right: Links & Support -->
+      <div class="hidden sm:flex items-center gap-4 shrink-0 text-slate-400">
+        <button
+          type="button"
+          @click="navigate('deals')"
+          class="hover:text-white transition-colors cursor-pointer"
+        >
+          Flash Deals 🔥
+        </button>
+        <button
+          type="button"
+          @click="navigate('compare')"
+          class="hover:text-white transition-colors cursor-pointer"
+        >
+          Product Compare
+        </button>
+        <button
+          type="button"
+          @click="navigate('order-tracking')"
+          class="hover:text-white transition-colors cursor-pointer"
+        >
+          Track Order
+        </button>
+        <span class="text-slate-600">|</span>
+        <span class="text-slate-300 font-semibold">USD ($)</span>
+      </div>
+    </div>
+  </div>
 </template>
-
-<style scoped>
-</style>
-

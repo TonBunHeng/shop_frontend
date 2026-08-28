@@ -1,166 +1,388 @@
 <script setup>
-import { ref } from 'vue'
-import { addToCart, cartCount, favorites, features, products, stats, toggleFavorite, year } from '../data/store'
-import AppHeader from '../components/AppHeader.vue'
+import { computed } from 'vue'
+import {
+  addToCart,
+  allProducts,
+  bundleOffers,
+  categories,
+  formatPrice,
+  recentlyViewedProducts,
+  selectedCategory,
+} from '../data/store'
+import CountdownTimer from '../components/CountdownTimer.vue'
+import ProductCard from '../components/ProductCard.vue'
 
-const showCartNotice = ref(false)
-let cartNoticeTimeout
-
-const handleAddToCart = (item) => {
-  addToCart(item)
-  showCartNotice.value = true
-  clearTimeout(cartNoticeTimeout)
-  cartNoticeTimeout = setTimeout(() => {
-    showCartNotice.value = false
-  }, 1400)
-}
-
-defineProps({
-  mobileNavOpen: {
-    type: Boolean,
-    required: true,
-  },
+const props = defineProps({
   navigate: {
-    type: Function,
-    required: true,
-  },  
-  toggleMobileNav: {
     type: Function,
     required: true,
   },
 })
+
+// Trending products
+const trendingProducts = computed(() =>
+  allProducts.filter((p) => p.isTrending || p.isFeatured).slice(0, 4)
+)
+
+// Best sellers
+const bestSellers = computed(() =>
+  allProducts.filter((p) => p.isBestSeller).slice(0, 4)
+)
+
+// New Arrivals
+const newArrivals = computed(() =>
+  allProducts.filter((p) => p.isNew).slice(0, 4)
+)
+
+// Flash Sale items (items with discount >= 10%)
+const flashSaleItems = computed(() =>
+  allProducts.filter((p) => p.originalPrice && p.originalPrice > p.price).slice(0, 4)
+)
+
+// Personalized Recommendations based on recently viewed items or fallback
+const personalizedRecommendations = computed(() => {
+  if (recentlyViewedProducts.value.length > 0) {
+    const lastCategory = recentlyViewedProducts.value[0].category
+    return allProducts.filter((p) => p.category === lastCategory).slice(0, 4)
+  }
+  return allProducts.slice(0, 4)
+})
+
+const handleCategoryClick = (catId) => {
+  selectedCategory.value = catId
+  props.navigate('shop', { category: catId })
+}
+
+const handleAddBundle = (bundle) => {
+  bundle.items.forEach((item) => {
+    addToCart(item, 1)
+  })
+  props.navigate('cart')
+}
 </script>
 
 <template>
-  <nav class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-900 bg-gray-950 px-4 py-3 sm:flex-nowrap sm:px-6 lg:px-10">
-  <AppHeader />
+  <div class="space-y-16 sm:space-y-24 pb-16">
+    <!-- 1. HERO SECTION -->
+    <section class="relative bg-slate-900 text-white overflow-hidden py-16 sm:py-24">
+      <!-- Glow Gradients in Background -->
+      <div class="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-indigo-600/30 blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-40 -right-40 w-96 h-96 rounded-full bg-sky-500/20 blur-3xl pointer-events-none"></div>
 
-    <button type="button"
-            class="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-gray-700 text-gray-300 transition-colors hover:border-gray-500 hover:text-white sm:hidden"
-            aria-controls="mobile-nav-actions"
-            :aria-expanded="mobileNavOpen"
-            aria-label="Open navigation menu"
-            @click="toggleMobileNav">
-      <svg v-if="!mobileNavOpen" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-        <path d="M4 7h16"/><path d="M4 12h16"/><path d="M4 17h16"/>
-      </svg>
-      <svg v-else class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-        <path d="M6 6l12 12"/><path d="M18 6L6 18"/>
-      </svg>
-    </button>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          <!-- Left: Hero Headline (7 cols) -->
+          <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 text-xs font-bold uppercase tracking-wider">
+              <span class="w-2 h-2 rounded-full bg-indigo-400 animate-ping"></span>
+              <span>Next-Gen Technology Unveiled</span>
+            </div>
 
-    <div id="mobile-nav-actions"
-         class="flex w-full origin-top flex-col gap-2 overflow-hidden transition-[max-height,opacity,transform] duration-300 ease-out motion-reduce:transition-none sm:max-h-none sm:w-auto sm:translate-y-0 sm:flex-row sm:items-center sm:justify-end sm:gap-3 sm:overflow-visible sm:opacity-100"
-         :class="mobileNavOpen ? 'max-h-48 opacity-100 translate-y-0' : 'max-h-0 opacity-0 -translate-y-2'">
-      <a href="/cart" class="relative inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-gray-700 px-3 py-2 text-sm font-semibold text-gray-300 transition-colors hover:border-gray-500 hover:text-white sm:px-5" @click.prevent="navigate('cart')">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386a.75.75 0 0 1 .737.607l.383 1.916m0 0L6.75 15.75h10.5l2.25-8.25H5.756Zm0 0L5.25 5.25M9 19.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm10.5 0a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z" />
-        </svg>
-        <span>Cart</span>
-        <span v-if="cartCount" class="ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-cyan-500 px-1.5 text-xs font-extrabold text-white">{{ cartCount }}</span>
-        <span v-if="showCartNotice" class="absolute -bottom-9 right-0 z-10 whitespace-nowrap rounded-lg bg-emerald-500 px-3 py-1.5 text-xs font-extrabold text-white shadow-lg shadow-emerald-950/40">Added to cart</span>
-      </a>
-      <a href="/register" class="inline-flex min-h-10 items-center justify-center rounded-lg border border-gray-700 px-3 py-2 text-sm font-semibold text-gray-300 transition-colors hover:border-gray-500 hover:text-white sm:px-5" @click.prevent="navigate('register')">Register</a>
-      <a href="/login" class="inline-flex min-h-10 items-center justify-center rounded-lg bg-cyan-500 px-3 py-2 text-sm font-bold text-white transition-colors hover:bg-cyan-600 active:bg-cyan-700 sm:px-5" @click.prevent="navigate('login')">Log in</a>
-    </div>
-  </nav>
+            <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-tight">
+              BUILT FOR YOUR <span class="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-sky-300 to-indigo-200">FUTURE.</span>
+            </h1>
 
-  <section class="flex flex-col items-center px-4 pb-12 pt-14 text-center sm:px-6 sm:pb-16 sm:pt-20">
-    <div class="mb-6 inline-flex max-w-full items-center gap-2 rounded-full border border-gray-800 bg-gray-900 px-4 py-1.5 sm:mb-8">
-      <span class="w-1.5 h-1.5 bg-cyan-400 rounded-full"></span>
-      <span class="truncate text-xs font-medium text-gray-400">Latest gadgets available now</span>
-    </div>
-    <h1 class="mb-5 max-w-3xl text-4xl font-extrabold leading-tight tracking-tight text-white sm:text-5xl md:text-6xl">
-      Discover Modern <span class="text-cyan-400">Technology</span><br class="hidden sm:block">
-      For Your Digital Life
-    </h1>
-    <p class="mb-8 max-w-xl text-sm leading-relaxed text-gray-500 sm:mb-10 sm:text-base">
-      Explore premium laptops, smartphones, smart watches, and modern gadgets with powerful performance and sleek design.
-    </p>
-    <div class="mb-12 flex w-full max-w-sm flex-col items-stretch gap-3 sm:mb-16 sm:w-auto sm:max-w-none sm:flex-row sm:items-center">
-      <a href="#products" class="rounded-xl bg-cyan-500 px-7 py-3.5 text-center text-sm font-bold text-white transition-colors hover:bg-cyan-600 active:bg-cyan-700" @click.prevent="navigate('home', '#products')">Shop now</a>
-      <a href="#products" class="flex items-center justify-center gap-2 rounded-xl border border-gray-800 px-6 py-3.5 text-sm font-semibold text-gray-400 transition-colors hover:border-gray-700 hover:text-gray-200" @click.prevent="navigate('home', '#products')">
-        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <polygon points="5 3 19 12 5 21 5 3"/>
-        </svg>
-        Explore products
-      </a>
-    </div>
-  </section>
+            <p class="text-sm sm:text-base text-slate-300 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+              Discover industry-leading pro laptops, flagship smartphones, studio monitors, and active noise-cancelling sound crafted for modern creators and power users.
+            </p>
 
-  <div class="grid grid-cols-2 border-t border-b border-gray-900 sm:flex sm:justify-center">
-    <div v-for="stat in stats" :key="stat[1]" class="border-b border-r border-gray-900 py-4 text-center even:border-r-0 [&:nth-child(n+3)]:border-b-0 sm:max-w-[160px] sm:flex-1 sm:border-b-0 sm:py-5 sm:even:border-r sm:last:border-r-0">
-      <div class="text-white text-2xl font-extrabold tracking-tight">{{ stat[0] }}</div>
-      <div class="text-gray-600 text-xs mt-1">{{ stat[1] }}</div>
-    </div>
-  </div>
+            <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5 pt-2">
+              <button
+                type="button"
+                @click="navigate('shop')"
+                class="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-bold text-sm shadow-xl shadow-indigo-600/30 hover:shadow-indigo-600/40 transition-all cursor-pointer flex items-center justify-center gap-2"
+              >
+                <span>Shop Pro Catalog</span>
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </button>
 
-  <section id="products" class="px-4 py-12 sm:px-6 sm:py-14 lg:px-10">
-    <p class="text-cyan-400 text-xs font-bold tracking-widest uppercase mb-1.5">Trending now</p>
-    <h2 class="text-white text-2xl font-extrabold tracking-tight mb-7">Latest Technology</h2>
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      <div v-for="item in products" :key="item[1]" class="translate-y-0 cursor-pointer rounded-2xl border border-slate-800 bg-slate-900 p-4 opacity-100 transition-[opacity,transform,border-color] duration-500 ease-out hover:border-cyan-500 motion-reduce:transition-none sm:p-5">
-        <div class="mb-4 aspect-[4/3] overflow-hidden rounded-xl bg-slate-800 sm:h-40 sm:aspect-auto">
-          <img :src="item[0]" :alt="item[1]" loading="lazy" class="h-full w-full object-cover transition-transform duration-300 hover:scale-105">
-        </div>
-        <div class="text-slate-100 text-sm font-bold mb-1">{{ item[1] }}</div>
-        <div class="text-slate-500 text-xs leading-relaxed mb-4">{{ item[2] }}</div>
-        <div class="flex items-center justify-between">
-          <span class="text-cyan-400 text-sm font-extrabold">{{ item[3] }}</span>
-          <div class="flex items-center gap-2">
-            <button type="button"
-                    :aria-label="`Add ${item[1]} to favorites`"
-                    class="w-8 h-8 border border-slate-700 hover:border-rose-400 hover:bg-rose-500/10 rounded-lg flex items-center justify-center text-slate-400 hover:text-rose-400 transition-colors"
-                    :class="{ 'border-rose-400 bg-rose-500/10 text-rose-400': favorites.has(item[1]) }"
-                    @click="toggleFavorite(item[1])">
-              <svg class="w-4 h-4 fill-none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z"/>
-              </svg>
-            </button>
-            <button type="button"
-                    class="w-8 h-8 bg-cyan-500 hover:bg-cyan-600 rounded-lg flex items-center justify-center text-white font-bold text-base transition-colors"
-                    :aria-label="`Add ${item[1]} to cart`"
-                    @click="handleAddToCart(item)">+</button>
+              <button
+                type="button"
+                @click="navigate('deals')"
+                class="w-full sm:w-auto px-7 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 active:bg-white/30 text-white font-bold text-sm backdrop-blur-xs border border-white/10 transition-all cursor-pointer flex items-center justify-center gap-2"
+              >
+                <span>🔥 Explore Flash Deals</span>
+              </button>
+            </div>
+
+            <!-- Trust highlights row -->
+            <div class="pt-6 border-t border-slate-800 grid grid-cols-3 gap-4 text-center lg:text-left">
+              <div>
+                <p class="text-lg sm:text-2xl font-black text-white">100%</p>
+                <p class="text-[11px] text-slate-400">Authentic Tech</p>
+              </div>
+              <div>
+                <p class="text-lg sm:text-2xl font-black text-white">2-Year</p>
+                <p class="text-[11px] text-slate-400">Full Warranty</p>
+              </div>
+              <div>
+                <p class="text-lg sm:text-2xl font-black text-white">&lt; 48h</p>
+                <p class="text-[11px] text-slate-400">Fast Express Ship</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Hero Visual Card (5 cols) -->
+          <div class="lg:col-span-5 relative">
+            <div class="relative rounded-3xl overflow-hidden bg-gradient-to-b from-slate-800 to-slate-900 border border-slate-700/80 p-6 sm:p-8 shadow-2xl group">
+              <!-- Featured Product Spotlight -->
+              <div class="aspect-4/3 w-full rounded-2xl overflow-hidden bg-slate-950 mb-5 relative">
+                <img
+                  src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80"
+                  alt="MacBook Pro 16 M3 Max"
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                />
+                <span class="absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-black uppercase bg-indigo-600 text-white shadow-md">
+                  Featured Powerhouse
+                </span>
+              </div>
+
+              <div class="space-y-2">
+                <span class="text-xs text-indigo-400 font-bold uppercase tracking-wider">M3 Max Silicon</span>
+                <h3 class="text-lg sm:text-xl font-bold text-white">MacBook Pro 16" M3 Max</h3>
+                <p class="text-xs text-slate-400 leading-relaxed">
+                  36GB Unified Memory, 1TB SSD, Liquid Retina XDR 120Hz display with 22h battery life.
+                </p>
+
+                <div class="flex items-center justify-between pt-4 border-t border-slate-700">
+                  <div>
+                    <span class="text-xl font-black text-white">$2,499</span>
+                    <span class="text-xs text-slate-500 line-through ml-2">$2,699</span>
+                  </div>
+
+                  <button
+                    type="button"
+                    @click="navigate('product', { id: 1 })"
+                    class="px-4 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-900 text-xs font-bold transition-colors cursor-pointer"
+                  >
+                    View Specs
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <section class="px-4 pb-12 sm:px-6 sm:pb-14 lg:px-10">
-    <div class="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-5">
-      <div v-for="feature in features" :key="feature[1]" class="translate-y-0 rounded-2xl border border-slate-800 bg-slate-900 p-5 opacity-100 transition-[opacity,transform,border-color] duration-500 ease-out motion-reduce:transition-none sm:p-6">
-        <div class="w-11 h-11 mb-4 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center">
-          <svg v-if="feature[0] === 'bolt'" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/>
-          </svg>
-          <svg v-else-if="feature[0] === 'lock'" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>
-          </svg>
-          <svg v-else class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 6h11v10H3z"/><path d="M14 9h4l3 3v4h-7z"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/>
-          </svg>
+    <!-- 2. FEATURED CATEGORIES CARDS -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between mb-8">
+        <div>
+          <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Explore Categories</h2>
+          <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Engineered for creators, developers & gamers</p>
         </div>
-        <h3 class="text-white text-lg font-bold mb-2">{{ feature[1] }}</h3>
-        <p class="text-slate-500 text-sm leading-relaxed">{{ feature[2] }}</p>
+
+        <button
+          type="button"
+          @click="navigate('shop')"
+          class="text-xs sm:text-sm font-bold text-indigo-600 hover:text-indigo-800 hover:underline flex items-center gap-1 cursor-pointer"
+        >
+          <span>All Categories</span>
+          <span>&rarr;</span>
+        </button>
       </div>
-    </div>
-  </section>
 
-  <div class="mx-4 mb-12 flex flex-col items-stretch justify-between gap-6 rounded-2xl border border-slate-800 bg-slate-900 px-5 py-6 sm:mx-6 sm:mb-14 sm:flex-row sm:items-center sm:px-8 sm:py-8 lg:mx-10">
-    <div>
-      <h3 class="text-white text-xl font-extrabold tracking-tight mb-1">Upgrade your setup today</h3>
-      <p class="text-slate-500 text-sm">Join thousands of customers buying premium technology products online.</p>
-    </div>
-    <a href="#products" class="whitespace-nowrap rounded-xl bg-cyan-500 px-7 py-3 text-center text-sm font-bold text-white transition-colors hover:bg-cyan-600 active:bg-cyan-700" @click.prevent="navigate('home', '#products')">Start shopping</a>
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-6">
+        <div
+          v-for="cat in categories.filter(c => c.id !== 'all')"
+          :key="cat.id"
+          @click="handleCategoryClick(cat.id)"
+          class="group bg-white rounded-2xl border border-slate-200/80 p-4 hover:border-indigo-300 hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col items-center text-center"
+        >
+          <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden mb-3.5 bg-slate-100 group-hover:scale-105 transition-transform">
+            <img :src="cat.image" :alt="cat.name" class="w-full h-full object-cover" />
+          </div>
+          <h3 class="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
+            {{ cat.name }}
+          </h3>
+          <span class="text-[11px] text-slate-400 font-medium mt-0.5">{{ cat.count }} Models</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. LIVE FLASH SALE WITH COUNTDOWN TIMER -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-3xl p-6 sm:p-10 border border-slate-800 shadow-2xl text-white">
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pb-8 border-b border-slate-800">
+          <div class="space-y-1">
+            <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-400 text-xs font-black uppercase tracking-wider">
+              🔥 24-Hour Flash Sale
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight">Deals of the Day</h2>
+            <p class="text-xs sm:text-sm text-slate-400">Save up to $200 on top-tier electronics before timer ends</p>
+          </div>
+
+          <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+            <span class="text-xs text-slate-400 font-bold uppercase tracking-wider">Ending in:</span>
+            <CountdownTimer :target-hours="14" theme="primary" />
+          </div>
+        </div>
+
+        <!-- Flash Deals Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
+          <ProductCard
+            v-for="product in flashSaleItems"
+            :key="product.id"
+            :product="product"
+            :navigate="navigate"
+          />
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. TRENDING PRODUCTS -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between mb-8">
+        <div>
+          <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Trending Now</h2>
+          <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Most viewed & purchased gadgets this week</p>
+        </div>
+
+        <button
+          type="button"
+          @click="navigate('shop')"
+          class="text-xs sm:text-sm font-bold text-indigo-600 hover:text-indigo-800 hover:underline flex items-center gap-1 cursor-pointer"
+        >
+          <span>View All ({{ allProducts.length }})</span>
+          <span>&rarr;</span>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <ProductCard
+          v-for="product in trendingProducts"
+          :key="product.id"
+          :product="product"
+          :navigate="navigate"
+        />
+      </div>
+    </section>
+
+    <!-- 5. BUNDLE DEALS BANNER -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="bg-gradient-to-tr from-indigo-50 via-sky-50 to-white rounded-3xl p-6 sm:p-10 border border-indigo-100 shadow-sm">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          <div class="lg:col-span-6 space-y-4">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-600 text-white text-xs font-black uppercase tracking-wider">
+              🎁 Complete Workspace Bundle
+            </span>
+
+            <h2 class="text-2xl sm:text-3xl font-black text-slate-900 leading-tight">
+              Pro Creator Studio Bundle
+            </h2>
+
+            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+              Get the MacBook Pro 16" M3 Max paired with the Dell 27" 4K HDR Monitor and Logitech MX Master 3S wireless mouse. Everything you need to build the ultimate workstation.
+            </p>
+
+            <div class="flex items-baseline gap-3 pt-2">
+              <span class="text-3xl font-black text-slate-900 font-mono">$2,847</span>
+              <span class="text-base text-slate-400 line-through font-mono">$3,147</span>
+              <span class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-black">
+                Save $300 Instant
+              </span>
+            </div>
+
+            <div class="pt-3">
+              <button
+                type="button"
+                @click="handleAddBundle(bundleOffers[0])"
+                class="px-8 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-bold text-sm shadow-lg shadow-indigo-600/20 hover:shadow-indigo-600/30 transition-all cursor-pointer flex items-center gap-2"
+              >
+                <span>Add Full 3-Piece Bundle to Cart</span>
+                <span>&rarr;</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Right: Bundle item miniatures -->
+          <div class="lg:col-span-6 grid grid-cols-3 gap-3 sm:gap-4">
+            <div
+              v-for="(item, i) in bundleOffers[0].items"
+              :key="i"
+              class="bg-white rounded-2xl p-3 border border-slate-200/80 shadow-xs flex flex-col items-center text-center"
+            >
+              <img :src="item.image" :alt="item.name" class="w-full aspect-square rounded-xl object-cover mb-2" />
+              <p class="text-xs font-bold text-slate-900 truncate w-full">{{ item.name }}</p>
+              <p class="text-[11px] text-slate-500 font-mono mt-0.5">${{ formatPrice(item.price) }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. BEST SELLERS & NEW ARRIVALS TABS/SECTIONS -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between mb-8">
+        <div>
+          <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Best Sellers</h2>
+          <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Proven quality rated 4.8+ stars by verified owners</p>
+        </div>
+
+        <button
+          type="button"
+          @click="navigate('shop')"
+          class="text-xs sm:text-sm font-bold text-indigo-600 hover:text-indigo-800 hover:underline flex items-center gap-1 cursor-pointer"
+        >
+          <span>Explore All</span>
+          <span>&rarr;</span>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <ProductCard
+          v-for="product in bestSellers"
+          :key="product.id"
+          :product="product"
+          :navigate="navigate"
+        />
+      </div>
+    </section>
+
+    <!-- 7. PERSONALIZED RECOMMENDATIONS -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between mb-8">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-indigo-600"></span>
+          <div>
+            <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Recommended For You</h2>
+            <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Based on your interests and recent browsing activity</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <ProductCard
+          v-for="product in personalizedRecommendations"
+          :key="product.id"
+          :product="product"
+          :navigate="navigate"
+        />
+      </div>
+    </section>
+
+    <!-- 8. RECENTLY VIEWED (If user viewed any) -->
+    <section v-if="recentlyViewedProducts.length > 0" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between mb-6 pb-3 border-b border-slate-200">
+        <h2 class="text-lg font-bold text-slate-900">Recently Viewed</h2>
+        <span class="text-xs text-slate-400">Tracked locally</span>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        <div
+          v-for="product in recentlyViewedProducts.slice(0, 6)"
+          :key="product.id"
+          @click="navigate('product', { id: product.id })"
+          class="bg-white rounded-2xl p-3 border border-slate-200 hover:border-indigo-300 hover:shadow-md transition-all cursor-pointer"
+        >
+          <img :src="product.image" :alt="product.name" class="w-full aspect-square rounded-xl object-cover mb-2" />
+          <h4 class="text-xs font-bold text-slate-900 truncate">{{ product.name }}</h4>
+          <p class="text-xs font-bold text-indigo-600 font-mono mt-1">${{ formatPrice(product.price) }}</p>
+        </div>
+      </div>
+    </section>
   </div>
-
-  <footer class="flex flex-col items-center justify-between gap-4 border-t border-gray-900 px-4 py-6 text-center sm:flex-row sm:px-6 sm:text-left lg:px-10">
-    <span class="text-gray-700 text-xs">© {{ year }} TechNova. All rights reserved.</span>
-    <div class="flex flex-wrap justify-center gap-x-6 gap-y-2">
-      <a href="#" class="text-gray-700 hover:text-gray-400 text-xs transition-colors">Privacy</a>
-      <a href="#" class="text-gray-700 hover:text-gray-400 text-xs transition-colors">Terms</a>
-      <a href="#" class="text-gray-700 hover:text-gray-400 text-xs transition-colors">Contact</a>
-    </div>
-  </footer>
 </template>
