@@ -26,7 +26,7 @@ const handleLogin = () => {
     isSubmitting.value = false
     loginUser(email.value, password.value)
     props.navigate('home')
-  }, 400)
+  }, 300)
 }
 
 const fillDemo = () => {
@@ -37,35 +37,35 @@ const fillDemo = () => {
 </script>
 
 <template>
-  <div class="min-h-[85vh] flex items-center justify-center px-4 py-12">
-    <div class="max-w-md w-full bg-white rounded-3xl border border-slate-200/80 p-8 sm:p-10 shadow-xl space-y-6">
+  <div class="min-h-[80vh] flex items-center justify-center px-4 py-12">
+    <div class="max-w-md w-full bg-white rounded-lg border border-gray-200 p-8 shadow-sm space-y-6">
       <!-- Logo & Header -->
-      <div class="text-center space-y-2">
+      <div class="text-center space-y-1">
         <a
           href="/"
           @click.prevent="navigate('home')"
-          class="inline-flex items-center gap-2 text-xl font-black text-slate-900 no-underline"
+          class="inline-flex items-center gap-2 text-xl font-bold text-gray-900 no-underline cursor-pointer"
         >
-          <div class="w-9 h-9 rounded-2xl bg-gradient-to-tr from-indigo-600 to-sky-500 text-white flex items-center justify-center font-bold text-sm">
+          <div class="w-7 h-7 rounded bg-blue-600 text-white flex items-center justify-center font-bold text-xs">
             TN
           </div>
-          <span>Tech<span class="text-indigo-600">Nova</span></span>
+          <span>Tech<span class="text-blue-600">Nova</span></span>
         </a>
 
-        <h1 class="text-2xl font-black text-slate-900 tracking-tight mt-2">Sign in to your account</h1>
-        <p class="text-xs text-slate-500">Access your saved wishlist, rewards, and tracked orders</p>
+        <h1 class="text-xl font-bold text-gray-900 pt-2">Sign in to your account</h1>
+        <p class="text-xs text-gray-500">Access your saved wishlist, orders, and rewards</p>
       </div>
 
       <!-- Quick Demo Login Button -->
-      <div class="p-3 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-between text-xs text-indigo-900">
+      <div class="p-3 rounded bg-blue-50 border border-blue-200 flex items-center justify-between text-xs text-blue-900">
         <div>
           <span class="font-bold block">Testing the platform?</span>
-          <span class="text-[11px] text-indigo-700">1-click demo shopper account</span>
+          <span class="text-[11px] text-blue-700">1-click demo shopper account</span>
         </div>
         <button
           type="button"
           @click="fillDemo"
-          class="px-3 py-1.5 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition-colors cursor-pointer"
+          class="px-3 py-1.5 rounded bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors cursor-pointer"
         >
           Demo Login
         </button>
@@ -74,23 +74,23 @@ const fillDemo = () => {
       <!-- Form -->
       <form @submit.prevent="handleLogin" class="space-y-4 text-xs">
         <div>
-          <label class="block font-bold text-slate-900 mb-1">Email Address</label>
+          <label class="block font-semibold text-gray-700 mb-1">Email Address</label>
           <input
             v-model="email"
             type="email"
             required
             placeholder="you@example.com"
-            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:bg-white focus:outline-hidden focus:border-indigo-500"
+            class="w-full bg-gray-50 border border-gray-300 rounded px-3 py-2 text-xs text-gray-900 focus:bg-white focus:outline-hidden focus:border-blue-600"
           />
         </div>
 
         <div>
           <div class="flex items-center justify-between mb-1">
-            <label class="font-bold text-slate-900">Password</label>
+            <label class="font-semibold text-gray-700">Password</label>
             <button
               type="button"
               @click="navigate('forgot-password')"
-              class="text-indigo-600 hover:underline font-semibold cursor-pointer"
+              class="text-blue-600 hover:underline font-medium cursor-pointer"
             >
               Forgot password?
             </button>
@@ -101,12 +101,12 @@ const fillDemo = () => {
               v-model="password"
               :type="showPassword ? 'text' : 'password'"
               required
-              class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:bg-white focus:outline-hidden focus:border-indigo-500 pr-10"
+              class="w-full bg-gray-50 border border-gray-300 rounded px-3 py-2 text-xs text-gray-900 focus:bg-white focus:outline-hidden focus:border-blue-600 pr-10"
             />
             <button
               type="button"
               @click="showPassword = !showPassword"
-              class="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 text-xs"
+              class="absolute right-3 top-2 text-gray-400 hover:text-gray-600 text-xs cursor-pointer"
             >
               {{ showPassword ? 'Hide' : 'Show' }}
             </button>
@@ -115,30 +115,30 @@ const fillDemo = () => {
 
         <div class="flex items-center justify-between">
           <label class="flex items-center gap-2 cursor-pointer">
-            <input v-model="rememberMe" type="checkbox" class="w-4 h-4 rounded-sm text-indigo-600 accent-indigo-600" />
-            <span class="text-slate-600 font-medium">Remember my session</span>
+            <input v-model="rememberMe" type="checkbox" class="rounded text-blue-600 accent-blue-600" />
+            <span class="text-gray-700 font-medium">Remember my session</span>
           </label>
         </div>
 
         <button
           type="submit"
           :disabled="isSubmitting"
-          class="w-full py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 disabled:opacity-50 text-white font-bold text-xs shadow-lg shadow-indigo-600/25 transition-all cursor-pointer"
+          class="w-full py-2.5 rounded bg-blue-600 hover:bg-blue-700 active:bg-blue-800 disabled:opacity-50 text-white font-medium text-xs transition-colors cursor-pointer"
         >
           <span v-if="isSubmitting">Signing In...</span>
-          <span v-else>Sign In to TechNova &rarr;</span>
+          <span v-else>Sign In &rarr;</span>
         </button>
       </form>
 
       <!-- Bottom link -->
-      <div class="pt-4 border-t border-slate-100 text-center text-xs text-slate-500">
-        Don't have a TechNova account?
+      <div class="pt-3 border-t border-gray-100 text-center text-xs text-gray-500">
+        Don't have an account?
         <button
           type="button"
           @click="navigate('register')"
-          class="text-indigo-600 hover:underline font-bold ml-1 cursor-pointer"
+          class="text-blue-600 hover:underline font-bold ml-1 cursor-pointer"
         >
-          Create an account
+          Create account
         </button>
       </div>
     </div>

@@ -49,50 +49,49 @@ const handleReorder = (order) => {
 }
 
 const handleCancel = (orderId) => {
-  if (confirm(`Are you sure you want to cancel order ${orderId}?`)) {
+  if (confirm(`Cancel order ${orderId}?`)) {
     cancelOrder(orderId)
   }
 }
 
 const breadcrumbs = [
   { label: 'Home', page: 'welcome' },
-  { label: 'Account Hub', page: 'account' },
+  { label: 'Account', page: 'account' },
   { label: 'Order History' },
 ]
 </script>
 
 <template>
-  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8">
-    <!-- Breadcrumbs -->
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
     <Breadcrumbs :items="breadcrumbs" :navigate="navigate" />
 
     <!-- Page Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-200">
       <div>
-        <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Order History</h1>
-        <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Manage and track your recent electronics purchases</p>
+        <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Order History</h1>
+        <p class="text-xs text-gray-500 mt-0.5">Manage and track your recent electronics purchases</p>
       </div>
 
       <button
         type="button"
         @click="navigate('shop')"
-        class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-colors cursor-pointer self-start sm:self-auto"
+        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded transition-colors cursor-pointer self-start sm:self-auto"
       >
-        + Browse Products
+        + Shop Products
       </button>
     </div>
 
     <!-- Filters & Search Toolbar -->
-    <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 text-xs">
+    <div class="bg-white rounded-lg border border-gray-200 p-3 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 text-xs">
       <!-- Search Input -->
       <div class="relative flex-1 max-w-sm">
         <input
           v-model="searchQuery"
           type="text"
-          placeholder="Search by Order ID, device name..."
-          class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-3 py-2 text-xs focus:outline-hidden focus:border-indigo-500 focus:bg-white"
+          placeholder="Search by Order ID, item name..."
+          class="w-full bg-gray-50 border border-gray-300 rounded pl-8 pr-3 py-1.5 text-xs focus:outline-hidden focus:border-blue-600 focus:bg-white"
         />
-        <svg class="w-4 h-4 text-slate-400 absolute left-2.5 top-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg class="w-4 h-4 text-gray-400 absolute left-2.5 top-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
       </div>
@@ -104,8 +103,8 @@ const breadcrumbs = [
           :key="st"
           type="button"
           @click="selectedStatus = st"
-          class="px-3 py-1.5 rounded-xl font-bold transition-colors capitalize whitespace-nowrap cursor-pointer"
-          :class="selectedStatus === st ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:bg-slate-100'"
+          class="px-2.5 py-1 rounded font-medium transition-colors capitalize whitespace-nowrap cursor-pointer text-xs"
+          :class="selectedStatus === st ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'"
         >
           {{ st }}
         </button>
@@ -117,30 +116,30 @@ const breadcrumbs = [
       <div
         v-for="order in filteredOrders"
         :key="order.id"
-        class="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-xs space-y-4 hover:border-slate-300 transition-all"
+        class="bg-white rounded-lg border border-gray-200 p-5 space-y-3"
       >
         <!-- Header -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 text-xs">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-gray-100 text-xs">
           <div class="flex items-center gap-3">
             <div>
-              <span class="text-[10px] font-bold uppercase text-slate-400">Order ID</span>
-              <p class="font-mono font-black text-slate-900 text-sm">{{ order.id }}</p>
+              <span class="text-[10px] font-bold uppercase text-gray-400">Order ID</span>
+              <p class="font-mono font-bold text-gray-900">{{ order.id }}</p>
             </div>
-            <span class="text-slate-300">|</span>
+            <span class="text-gray-300">|</span>
             <div>
-              <span class="text-[10px] font-bold uppercase text-slate-400">Date</span>
-              <p class="font-bold text-slate-700">{{ order.date }}</p>
+              <span class="text-[10px] font-bold uppercase text-gray-400">Date</span>
+              <p class="font-medium text-gray-700">{{ order.date }}</p>
             </div>
           </div>
 
-          <div class="flex items-center gap-2">
+          <div>
             <span
-              class="px-3 py-1 rounded-full text-xs font-black uppercase"
+              class="px-2.5 py-0.5 rounded text-[10px] font-bold uppercase"
               :class="{
                 'bg-emerald-100 text-emerald-800': order.status === 'Delivered',
                 'bg-blue-100 text-blue-800': order.status === 'Shipped',
                 'bg-amber-100 text-amber-800': order.status === 'Processing',
-                'bg-rose-100 text-rose-800': order.status === 'Cancelled',
+                'bg-red-100 text-red-800': order.status === 'Cancelled',
               }"
             >
               {{ order.status }}
@@ -149,47 +148,47 @@ const breadcrumbs = [
         </div>
 
         <!-- Items in order -->
-        <div class="divide-y divide-slate-100">
+        <div class="divide-y divide-gray-100">
           <div
             v-for="item in order.items"
             :key="item.id"
-            class="py-3 first:pt-0 last:pb-0 flex items-center justify-between gap-4 text-xs"
+            class="py-2.5 first:pt-0 last:pb-0 flex items-center justify-between gap-3 text-xs"
           >
-            <div class="flex items-center gap-3 min-w-0">
-              <img :src="item.image" :alt="item.name" class="w-12 h-12 rounded-xl object-cover shrink-0 border border-slate-100" />
+            <div class="flex items-center gap-2.5 min-w-0">
+              <img :src="item.image" :alt="item.name" class="w-10 h-10 rounded object-cover border border-gray-200 shrink-0" />
               <div class="truncate">
-                <p class="font-bold text-slate-900 truncate">{{ item.name }}</p>
-                <p class="text-[11px] text-slate-500 font-mono">Qty: {{ item.quantity }} × ${{ formatPrice(item.price) }}</p>
+                <p class="font-semibold text-gray-900 truncate">{{ item.name }}</p>
+                <p class="text-[11px] text-gray-500 font-mono">Qty: {{ item.quantity }} × ${{ formatPrice(item.price) }}</p>
               </div>
             </div>
 
-            <span class="font-mono font-bold text-slate-900 shrink-0">
+            <span class="font-mono font-bold text-gray-900 shrink-0">
               ${{ formatPrice(item.price * item.quantity) }}
             </span>
           </div>
         </div>
 
         <!-- Order Total & Actions Footer -->
-        <div class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs">
+        <div class="pt-3 border-t border-gray-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
           <div>
-            <span class="text-slate-500">Order Total: </span>
-            <span class="text-base font-black text-slate-900 font-mono">${{ formatPrice(order.total) }}</span>
-            <span class="text-[11px] text-slate-400 ml-2">via {{ order.paymentMethod }}</span>
+            <span class="text-gray-500">Order Total: </span>
+            <span class="font-bold text-gray-900 font-mono text-sm">${{ formatPrice(order.total) }}</span>
+            <span class="text-[11px] text-gray-400 ml-2">via {{ order.paymentMethod }}</span>
           </div>
 
           <div class="flex items-center gap-2 w-full sm:w-auto flex-wrap">
             <button
               type="button"
               @click="navigate('order-tracking', { id: order.id })"
-              class="flex-1 sm:flex-initial px-4 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+              class="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium rounded transition-colors cursor-pointer text-xs"
             >
-              <span>📍 Track</span>
+              Track Status
             </button>
 
             <button
               type="button"
               @click="handleReorder(order)"
-              class="flex-1 sm:flex-initial px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold transition-colors cursor-pointer"
+              class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium rounded transition-colors cursor-pointer text-xs"
             >
               Reorder
             </button>
@@ -198,7 +197,7 @@ const breadcrumbs = [
               v-if="order.status === 'Processing'"
               type="button"
               @click="handleCancel(order.id)"
-              class="px-3 py-2 rounded-xl text-rose-600 hover:bg-rose-50 font-bold transition-colors cursor-pointer"
+              class="px-2.5 py-1.5 text-red-600 hover:bg-red-50 font-medium rounded transition-colors cursor-pointer text-xs"
             >
               Cancel
             </button>
@@ -212,8 +211,8 @@ const breadcrumbs = [
       v-else
       icon="orders"
       title="No orders found"
-      description="You haven't placed any orders matching these filters yet."
-      action-text="Discover Products"
+      description="You have not placed any orders matching the current filter."
+      action-text="Browse Products"
       :action-click="() => navigate('shop')"
     />
   </div>

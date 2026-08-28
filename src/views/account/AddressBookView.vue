@@ -8,6 +8,7 @@ import {
   showToast,
   updateAddress,
 } from '../../data/store'
+import AppIcon from '../../components/AppIcon.vue'
 import Breadcrumbs from '../../components/Breadcrumbs.vue'
 import Modal from '../../components/Modal.vue'
 
@@ -80,81 +81,82 @@ const handleDelete = (id) => {
 
 const breadcrumbs = [
   { label: 'Home', page: 'welcome' },
-  { label: 'Account Hub', page: 'account' },
+  { label: 'Account', page: 'account' },
   { label: 'Address Book' },
 ]
 </script>
 
 <template>
-  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
     <Breadcrumbs :items="breadcrumbs" :navigate="navigate" />
 
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-200">
       <div>
-        <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Saved Addresses</h1>
-        <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Manage delivery destinations for seamless checkout</p>
+        <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Saved Addresses</h1>
+        <p class="text-xs text-gray-500 mt-0.5">Manage delivery destinations for fast checkout</p>
       </div>
 
       <button
         type="button"
         @click="openAddModal"
-        class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-md transition-colors cursor-pointer flex items-center gap-1.5 self-start sm:self-auto"
+        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded transition-colors cursor-pointer self-start sm:self-auto"
       >
-        <span>+ Add New Address</span>
+        + Add Address
       </button>
     </div>
 
     <!-- Address Cards Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       <div
         v-for="addr in addresses"
         :key="addr.id"
-        class="bg-white rounded-3xl border p-6 flex flex-col justify-between space-y-4 shadow-xs transition-all"
-        :class="addr.isDefault ? 'border-indigo-600 ring-2 ring-indigo-100' : 'border-slate-200/80'"
+        class="bg-white rounded-lg border p-4 flex flex-col justify-between space-y-3"
+        :class="addr.isDefault ? 'border-blue-600 ring-1 ring-blue-600' : 'border-gray-200'"
       >
         <div>
           <!-- Type Badge & Default -->
-          <div class="flex items-center justify-between gap-2 mb-3">
-            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-slate-100 text-slate-700">
+          <div class="flex items-center justify-between gap-2 mb-2">
+            <span class="bg-gray-100 text-gray-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase">
               {{ addr.type }}
             </span>
 
             <span
               v-if="addr.isDefault"
-              class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-emerald-100 text-emerald-800"
+              class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded uppercase"
             >
-              ★ Default
+              Default
             </span>
           </div>
 
-          <h3 class="font-bold text-slate-900 text-sm mb-1">{{ addr.title || addr.fullName }}</h3>
-          <p class="text-xs text-slate-700 font-medium">{{ addr.fullName }}</p>
-          <p class="text-xs text-slate-500 mt-1 leading-relaxed">
+          <h3 class="font-bold text-gray-900 text-xs">{{ addr.title || addr.fullName }}</h3>
+          <p class="text-xs text-gray-700 mt-0.5">{{ addr.fullName }}</p>
+          <p class="text-xs text-gray-500 mt-1 leading-relaxed">
             {{ addr.address }}<br />
             {{ addr.city }}, {{ addr.state }} {{ addr.zip }}<br />
             {{ addr.country }}
           </p>
-          <p v-if="addr.phone" class="text-xs text-slate-500 mt-2 font-mono">
-            📞 {{ addr.phone }}
+          <p v-if="addr.phone" class="text-xs text-gray-500 mt-1.5 font-mono flex items-center gap-1.5">
+            <AppIcon name="phone" size="xs" />
+            <span>{{ addr.phone }}</span>
           </p>
         </div>
 
-        <!-- Card Actions -->
-        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
+        <!-- Actions -->
+        <div class="pt-3 border-t border-gray-100 flex items-center justify-between text-xs">
           <div class="flex items-center gap-2">
             <button
               type="button"
               @click="openEditModal(addr)"
-              class="text-indigo-600 hover:text-indigo-800 font-bold cursor-pointer"
+              class="text-blue-600 hover:underline font-semibold cursor-pointer"
             >
               Edit
             </button>
-            <span class="text-slate-300">|</span>
+            <span class="text-gray-300">|</span>
             <button
               type="button"
               @click="handleDelete(addr.id)"
-              class="text-rose-600 hover:text-rose-800 font-semibold cursor-pointer"
+              class="text-red-600 hover:underline cursor-pointer"
             >
               Delete
             </button>
@@ -164,7 +166,7 @@ const breadcrumbs = [
             v-if="!addr.isDefault"
             type="button"
             @click="setDefaultAddress(addr.id)"
-            class="text-[11px] font-bold text-slate-500 hover:text-slate-900 cursor-pointer"
+            class="text-gray-500 hover:text-gray-800 font-medium text-[11px] cursor-pointer"
           >
             Set Default
           </button>
@@ -175,29 +177,29 @@ const breadcrumbs = [
     <!-- Modal for Add/Edit Address -->
     <Modal
       :is-open="isModalOpen"
-      :title="editingAddressId ? 'Edit Delivery Address' : 'Add New Address'"
+      :title="editingAddressId ? 'Edit Address' : 'Add New Address'"
       @close="isModalOpen = false"
     >
-      <form @submit.prevent="handleSave" class="space-y-4 text-xs">
+      <form @submit.prevent="handleSave" class="space-y-3 text-xs">
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block font-bold text-slate-900 mb-1">Address Label</label>
+            <label class="block font-semibold text-gray-700 mb-1">Label</label>
             <input
               v-model="addressForm.title"
               type="text"
-              placeholder="e.g. Home, Office, Studio"
-              class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:bg-white focus:border-indigo-500 focus:outline-hidden"
+              placeholder="e.g. Home, Office"
+              class="w-full bg-gray-50 border border-gray-300 rounded px-3 py-2 text-xs focus:bg-white focus:outline-hidden focus:border-blue-600"
             />
           </div>
 
           <div>
-            <label class="block font-bold text-slate-900 mb-1">Address Type</label>
+            <label class="block font-semibold text-gray-700 mb-1">Type</label>
             <select
               v-model="addressForm.type"
-              class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:bg-white focus:border-indigo-500 focus:outline-hidden cursor-pointer"
+              class="w-full bg-gray-50 border border-gray-300 rounded px-3 py-2 text-xs focus:bg-white focus:outline-hidden focus:border-blue-600 cursor-pointer"
             >
               <option value="Home">Home</option>
-              <option value="Office">Office / Workplace</option>
+              <option value="Office">Office</option>
               <option value="Other">Other</option>
             </select>
           </div>
@@ -205,61 +207,61 @@ const breadcrumbs = [
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block font-bold text-slate-900 mb-1">Full Name *</label>
+            <label class="block font-semibold text-gray-700 mb-1">Full Name *</label>
             <input
               v-model="addressForm.fullName"
               type="text"
               required
-              class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:bg-white focus:border-indigo-500 focus:outline-hidden"
+              class="w-full bg-gray-50 border border-gray-300 rounded px-3 py-2 text-xs focus:bg-white focus:outline-hidden focus:border-blue-600"
             />
           </div>
 
           <div>
-            <label class="block font-bold text-slate-900 mb-1">Phone Number</label>
+            <label class="block font-semibold text-gray-700 mb-1">Phone</label>
             <input
               v-model="addressForm.phone"
               type="tel"
-              class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:bg-white focus:border-indigo-500 focus:outline-hidden"
+              class="w-full bg-gray-50 border border-gray-300 rounded px-3 py-2 text-xs focus:bg-white focus:outline-hidden focus:border-blue-600"
             />
           </div>
         </div>
 
         <div>
-          <label class="block font-bold text-slate-900 mb-1">Street Address *</label>
+          <label class="block font-semibold text-gray-700 mb-1">Street Address *</label>
           <input
             v-model="addressForm.address"
             type="text"
             required
-            placeholder="Street address, apartment, suite, unit"
-            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:bg-white focus:border-indigo-500 focus:outline-hidden"
+            placeholder="Street address, apartment"
+            class="w-full bg-gray-50 border border-gray-300 rounded px-3 py-2 text-xs focus:bg-white focus:outline-hidden focus:border-blue-600"
           />
         </div>
 
         <div class="grid grid-cols-3 gap-3">
           <div>
-            <label class="block font-bold text-slate-900 mb-1">City *</label>
+            <label class="block font-semibold text-gray-700 mb-1">City *</label>
             <input
               v-model="addressForm.city"
               type="text"
               required
-              class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:bg-white focus:border-indigo-500 focus:outline-hidden"
+              class="w-full bg-gray-50 border border-gray-300 rounded px-3 py-2 text-xs focus:bg-white focus:outline-hidden focus:border-blue-600"
             />
           </div>
           <div>
-            <label class="block font-bold text-slate-900 mb-1">State / Province</label>
+            <label class="block font-semibold text-gray-700 mb-1">State</label>
             <input
               v-model="addressForm.state"
               type="text"
-              class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:bg-white focus:border-indigo-500 focus:outline-hidden"
+              class="w-full bg-gray-50 border border-gray-300 rounded px-3 py-2 text-xs focus:bg-white focus:outline-hidden focus:border-blue-600"
             />
           </div>
           <div>
-            <label class="block font-bold text-slate-900 mb-1">Postal Code *</label>
+            <label class="block font-semibold text-gray-700 mb-1">ZIP *</label>
             <input
               v-model="addressForm.zip"
               type="text"
               required
-              class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:bg-white focus:border-indigo-500 focus:outline-hidden"
+              class="w-full bg-gray-50 border border-gray-300 rounded px-3 py-2 text-xs focus:bg-white focus:outline-hidden focus:border-blue-600"
             />
           </div>
         </div>
@@ -268,22 +270,22 @@ const breadcrumbs = [
           <input
             v-model="addressForm.isDefault"
             type="checkbox"
-            class="w-4 h-4 rounded-sm text-indigo-600 accent-indigo-600 cursor-pointer"
+            class="rounded text-blue-600 accent-blue-600 cursor-pointer"
           />
-          <span class="text-xs font-semibold text-slate-700">Set as default shipping address</span>
+          <span class="text-gray-700">Set as default shipping address</span>
         </label>
 
-        <div class="pt-4 border-t border-slate-100 flex justify-end gap-2">
+        <div class="pt-3 border-t border-gray-200 flex justify-end gap-2">
           <button
             type="button"
             @click="isModalOpen = false"
-            class="px-4 py-2 rounded-xl border border-slate-200 text-slate-700 font-bold hover:bg-slate-50 cursor-pointer"
+            class="px-3 py-1.5 border border-gray-300 rounded text-gray-700 hover:bg-gray-50 cursor-pointer"
           >
             Cancel
           </button>
           <button
             type="submit"
-            class="px-6 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-md cursor-pointer"
+            class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded cursor-pointer"
           >
             Save Address
           </button>

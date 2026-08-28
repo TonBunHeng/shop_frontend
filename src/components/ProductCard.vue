@@ -3,9 +3,9 @@ import { computed } from 'vue'
 import {
   addToCart,
   formatPrice,
-  isInCompare,
-  isInWishlist,
-  openQuickView,
+  isProductInWishlist,
+  quickViewProductId,
+  showToast,
   toggleCompare,
   toggleWishlist,
 } from '../data/store'
@@ -17,238 +17,222 @@ const props = defineProps({
     type: Object,
     required: true,
   },
-  viewMode: {
+  layout: {
     type: String,
     default: 'grid', // 'grid' | 'list'
   },
   navigate: {
     type: Function,
-    default: null,
+    required: true,
   },
 })
 
-const handleAddToCart = () => {
+const inWishlist = computed(() => isProductInWishlist(props.product.id))
+
+const handleAddToCart = (e) => {
+  e.stopPropagation()
   addToCart(props.product, 1)
 }
 
-const goToProduct = () => {
-  if (props.navigate) {
-    props.navigate('product', { id: props.product.id })
-  } else {
-    openQuickView(props.product)
-  }
+const handleToggleWishlist = (e) => {
+  e.stopPropagation()
+  toggleWishlist(props.product.id)
 }
 
-const badgeColor = computed(() => {
-  switch (props.product.badge) {
-    case 'BEST SELLER':
-      return 'bg-amber-500 text-white'
-    case 'SALE':
-      return 'bg-rose-600 text-white'
-    case 'NEW':
-      return 'bg-emerald-600 text-white'
-    case 'HOT':
-      return 'bg-indigo-600 text-white'
-    case 'EXCLUSIVE':
-      return 'bg-purple-600 text-white'
-    default:
-      return 'bg-slate-900 text-white'
-  }
-})
+const handleToggleCompare = (e) => {
+  e.stopPropagation()
+  toggleCompare(props.product.id)
+}
+
+const handleQuickView = (e) => {
+  e.stopPropagation()
+  quickViewProductId.value = props.product.id
+}
+
+const openProduct = () => {
+  props.navigate('product', { id: props.product.id })
+}
 </script>
 
 <template>
-  <!-- GRID VIEW -->
+  <!-- Grid View Card -->
   <div
-    v-if="viewMode === 'grid'"
-    class="group bg-white border border-slate-200/80 hover:border-indigo-300 rounded-2xl p-4 flex flex-col justify-between hover:shadow-xl transition-all duration-300 relative"
+    v-if="layout === 'grid'"
+    @click="openProduct"
+    class="bg-white border border-gray-200 rounded-lg p-4 flex flex-col justify-between hover:shadow-md transition-shadow cursor-pointer relative group"
   >
     <!-- Top Image Container -->
-    <div class="relative aspect-4/3 w-full overflow-hidden rounded-xl bg-slate-100 mb-3.5 cursor-pointer" @click="goToProduct">
+    <div class="relative w-full aspect-square bg-gray-50 rounded mb-3 flex items-center justify-center overflow-hidden">
       <img
         :src="product.image"
         :alt="product.name"
         loading="lazy"
-        class="h-full w-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+        class="w-full h-full object-cover group-hover:scale-102 transition-transform duration-200"
       />
 
-      <!-- Badge -->
+      <!-- Badge (Sale, Best Seller, New, etc.) -->
       <span
         v-if="product.badge"
-        :class="['absolute top-2.5 left-2.5 px-2 py-0.5 rounded-full text-[10px] font-extrabold tracking-wider uppercase shadow-xs', badgeColor]"
+        class="absolute top-2 left-2 bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-xs"
+        :class="{
+          'bg-red-600': product.badge === 'SALE' || product.badge === 'HOT',
+          'bg-emerald-600': product.badge === 'NEW',
+          'bg-amber-600': product.badge === 'BEST SELLER',
+        }"
       >
         {{ product.badge }}
       </span>
 
-      <!-- Action Buttons Floating on top-right -->
-      <div class="absolute top-2.5 right-2.5 flex flex-col gap-1.5 z-10">
-        <!-- Wishlist -->
-        <button
-          type="button"
-          @click.stop="toggleWishlist(product)"
-          class="w-8 h-8 rounded-full bg-white/90 backdrop-blur-xs hover:bg-white shadow-sm flex items-center justify-center text-slate-500 hover:text-rose-500 transition-all hover:scale-110 cursor-pointer"
-          :class="{ 'text-rose-500 !bg-rose-50': isInWishlist(product.id) }"
-          title="Save to Wishlist"
-          aria-label="Toggle wishlist"
-        >
-          <svg class="w-4 h-4" :fill="isInWishlist(product.id) ? 'currentColor' : 'none'" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-          </svg>
-        </button>
-
-        <!-- Quick View button -->
-        <button
-          type="button"
-          @click.stop="openQuickView(product)"
-          class="w-8 h-8 rounded-full bg-white/90 backdrop-blur-xs hover:bg-white shadow-sm flex items-center justify-center text-slate-500 hover:text-indigo-600 transition-all hover:scale-110 cursor-pointer opacity-0 group-hover:opacity-100"
-          title="Quick View"
-          aria-label="Quick view"
-        >
-          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-          </svg>
-        </button>
-
-        <!-- Compare button -->
-        <button
-          type="button"
-          @click.stop="toggleCompare(product)"
-          class="w-8 h-8 rounded-full bg-white/90 backdrop-blur-xs hover:bg-white shadow-sm flex items-center justify-center text-slate-500 hover:text-indigo-600 transition-all hover:scale-110 cursor-pointer opacity-0 group-hover:opacity-100"
-          :class="{ 'text-indigo-600 !bg-indigo-50 !opacity-100': isInCompare(product.id) }"
-          title="Compare product"
-          aria-label="Toggle compare"
-        >
-          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
-          </svg>
-        </button>
-      </div>
-
-      <!-- Quick Stock pill -->
-      <span
-        v-if="product.stockStatus && product.stockStatus !== 'In Stock'"
-        class="absolute bottom-2.5 left-2.5 px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-500/90 backdrop-blur-xs text-white"
+      <!-- Wishlist Action Button -->
+      <button
+        type="button"
+        @click="handleToggleWishlist"
+        class="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/90 hover:bg-white text-gray-600 hover:text-red-500 flex items-center justify-center shadow-xs transition-colors cursor-pointer"
+        :class="{ 'text-red-500 fill-red-500': inWishlist }"
+        aria-label="Save to Wishlist"
       >
-        {{ product.stockStatus }}
-      </span>
+        <svg class="w-4 h-4" :fill="inWishlist ? 'currentColor' : 'none'" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+        </svg>
+      </button>
+
+      <!-- Quick View Hover Button -->
+      <button
+        type="button"
+        @click="handleQuickView"
+        class="absolute bottom-2 inset-x-2 py-1.5 bg-gray-900/80 hover:bg-gray-900 text-white text-xs font-medium rounded transition-opacity opacity-0 group-hover:opacity-100 cursor-pointer text-center"
+      >
+        Quick View
+      </button>
     </div>
 
-    <!-- Product Info -->
+    <!-- Product Info Details -->
     <div class="flex-1 flex flex-col justify-between">
       <div>
-        <div class="flex items-center justify-between text-[11px] text-slate-400 font-bold uppercase tracking-wider mb-1">
-          <span>{{ product.brand }}</span>
-          <ProductRating :rating="product.rating || 5" :reviews-count="product.reviewsCount || 0" size="xs" />
-        </div>
-
-        <h3
-          @click="goToProduct"
-          class="text-sm font-bold text-slate-900 hover:text-indigo-600 cursor-pointer line-clamp-1 transition-colors"
-        >
+        <span class="text-[11px] text-gray-500 font-medium uppercase tracking-wider block">
+          {{ product.brand }}
+        </span>
+        <h3 class="text-sm font-semibold text-gray-900 mt-0.5 line-clamp-2 group-hover:text-blue-600 transition-colors">
           {{ product.name }}
         </h3>
 
-        <p class="text-xs text-slate-500 line-clamp-2 mt-1 leading-relaxed">
-          {{ product.tagline || product.description }}
-        </p>
-      </div>
-
-      <!-- Price & Add to Cart -->
-      <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
-        <PriceDisplay :price="product.price" :original-price="product.originalPrice" size="md" />
-
-        <button
-          type="button"
-          @click="handleAddToCart"
-          class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-indigo-600 active:bg-indigo-700 text-white text-xs font-bold transition-all shadow-xs hover:shadow-md cursor-pointer flex items-center gap-1.5 shrink-0"
-        >
-          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-          </svg>
-          <span>Add</span>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- LIST VIEW -->
-  <div
-    v-else
-    class="group bg-white border border-slate-200/80 hover:border-indigo-300 rounded-2xl p-4 flex flex-col sm:flex-row gap-5 items-center hover:shadow-lg transition-all duration-300"
-  >
-    <!-- Image -->
-    <div class="relative w-full sm:w-48 aspect-4/3 sm:aspect-square rounded-xl bg-slate-100 overflow-hidden shrink-0 cursor-pointer" @click="goToProduct">
-      <img :src="product.image" :alt="product.name" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-      <span
-        v-if="product.badge"
-        :class="['absolute top-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase', badgeColor]"
-      >
-        {{ product.badge }}
-      </span>
-    </div>
-
-    <!-- Details -->
-    <div class="flex-1 min-w-0 w-full flex flex-col justify-between h-full py-1">
-      <div>
-        <div class="flex items-center justify-between text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">
-          <span>{{ product.brand }} · {{ product.category }}</span>
-          <ProductRating :rating="product.rating || 5" :reviews-count="product.reviewsCount || 0" size="sm" />
+        <!-- Rating -->
+        <div class="mt-1.5 flex items-center gap-1.5">
+          <ProductRating :rating="product.rating" size="xs" :count="product.reviewsCount" />
         </div>
+      </div>
 
-        <h3 @click="goToProduct" class="text-base font-bold text-slate-900 hover:text-indigo-600 cursor-pointer transition-colors">
-          {{ product.name }}
-        </h3>
-
-        <p class="text-xs text-slate-500 line-clamp-2 mt-1.5 leading-relaxed">
-          {{ product.description }}
-        </p>
-
-        <!-- Feature tags snippet -->
-        <div v-if="product.features" class="flex flex-wrap gap-2 mt-2.5">
+      <!-- Price & Actions -->
+      <div class="mt-3 pt-3 border-t border-gray-100">
+        <div class="flex items-baseline justify-between mb-2.5">
+          <PriceDisplay :price="product.price" :original-price="product.originalPrice" size="sm" />
           <span
-            v-for="(f, i) in product.features.slice(0, 2)"
-            :key="i"
-            class="text-[11px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md font-medium"
+            v-if="product.inStock"
+            class="text-[10px] font-medium text-emerald-600"
           >
-            ✓ {{ f }}
+            In Stock
+          </span>
+          <span v-else class="text-[10px] font-medium text-red-600">
+            Out of Stock
           </span>
         </div>
-      </div>
-
-      <!-- Action row -->
-      <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-4 flex-wrap">
-        <PriceDisplay :price="product.price" :original-price="product.originalPrice" size="lg" />
 
         <div class="flex items-center gap-2">
           <button
             type="button"
-            @click="toggleWishlist(product)"
-            class="p-2.5 rounded-xl border border-slate-200 text-slate-600 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
-            :class="{ 'text-rose-600 !bg-rose-50 !border-rose-200': isInWishlist(product.id) }"
-            title="Wishlist"
-          >
-            <svg class="w-4 h-4" :fill="isInWishlist(product.id) ? 'currentColor' : 'none'" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-            </svg>
-          </button>
-
-          <button
-            type="button"
-            @click="openQuickView(product)"
-            class="px-3 py-2 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-bold transition-colors cursor-pointer"
-          >
-            Quick View
-          </button>
-
-          <button
-            type="button"
             @click="handleAddToCart"
-            class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white text-xs font-bold shadow-sm hover:shadow-md transition-all cursor-pointer"
+            :disabled="!product.inStock"
+            class="flex-1 py-2 px-3 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 disabled:bg-gray-200 disabled:text-gray-400 text-white text-xs font-medium rounded transition-colors cursor-pointer text-center"
           >
             Add to Cart
           </button>
+
+          <button
+            type="button"
+            @click="handleToggleCompare"
+            title="Compare"
+            class="p-2 border border-gray-200 hover:bg-gray-50 text-gray-600 rounded transition-colors cursor-pointer"
+          >
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+            </svg>
+          </button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- List View Card -->
+  <div
+    v-else
+    @click="openProduct"
+    class="bg-white border border-gray-200 rounded-lg p-4 flex flex-col sm:flex-row items-center gap-4 hover:shadow-md transition-shadow cursor-pointer relative group"
+  >
+    <!-- Image -->
+    <div class="w-full sm:w-36 h-36 bg-gray-50 rounded flex items-center justify-center shrink-0 overflow-hidden relative">
+      <img
+        :src="product.image"
+        :alt="product.name"
+        loading="lazy"
+        class="w-full h-full object-cover"
+      />
+      <span
+        v-if="product.badge"
+        class="absolute top-2 left-2 bg-blue-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded"
+      >
+        {{ product.badge }}
+      </span>
+    </div>
+
+    <!-- Middle Description -->
+    <div class="flex-1 min-w-0">
+      <span class="text-[11px] text-gray-500 font-medium uppercase tracking-wider block">
+        {{ product.brand }} · {{ product.category }}
+      </span>
+      <h3 class="text-base font-semibold text-gray-900 mt-0.5 group-hover:text-blue-600 transition-colors">
+        {{ product.name }}
+      </h3>
+      <p class="text-xs text-gray-600 mt-1 line-clamp-2">
+        {{ product.description }}
+      </p>
+      <div class="mt-2 flex items-center gap-2">
+        <ProductRating :rating="product.rating" size="xs" :count="product.reviewsCount" />
+        <span class="text-gray-300">|</span>
+        <span class="text-xs text-emerald-600 font-medium">Free 2-Day Shipping</span>
+      </div>
+    </div>
+
+    <!-- Right Price & Actions -->
+    <div class="w-full sm:w-48 sm:text-right flex flex-col justify-between sm:border-l sm:border-gray-100 sm:pl-4">
+      <div>
+        <PriceDisplay :price="product.price" :original-price="product.originalPrice" size="md" />
+        <span
+          class="text-xs font-medium block mt-1"
+          :class="product.inStock ? 'text-emerald-600' : 'text-red-600'"
+        >
+          {{ product.inStock ? 'In Stock' : 'Out of Stock' }}
+        </span>
+      </div>
+
+      <div class="mt-3 flex items-center gap-2 sm:justify-end">
+        <button
+          type="button"
+          @click="handleAddToCart"
+          :disabled="!product.inStock"
+          class="flex-1 sm:flex-initial py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded transition-colors cursor-pointer"
+        >
+          Add to Cart
+        </button>
+
+        <button
+          type="button"
+          @click="handleToggleWishlist"
+          class="p-2 border border-gray-200 hover:bg-gray-50 text-gray-600 rounded transition-colors cursor-pointer"
+        >
+          <svg class="w-4 h-4" :fill="inWishlist ? 'red' : 'none'" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+          </svg>
+        </button>
       </div>
     </div>
   </div>

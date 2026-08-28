@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, onUnmounted, watch } from 'vue'
+import { onMounted, onUnmounted } from 'vue'
 
 const props = defineProps({
   isOpen: {
@@ -12,7 +12,7 @@ const props = defineProps({
   },
   maxWidth: {
     type: String,
-    default: 'max-w-xl', // 'max-w-md' | 'max-w-xl' | 'max-w-3xl' | 'max-w-5xl'
+    default: 'max-w-lg',
   },
 })
 
@@ -31,65 +31,40 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('keydown', handleKeyDown)
 })
-
-watch(
-  () => props.isOpen,
-  (val) => {
-    if (val) {
-      document.body.style.overflow = 'hidden'
-    } else {
-      document.body.style.overflow = ''
-    }
-  }
-)
 </script>
 
 <template>
   <Teleport to="body">
-    <div
-      v-if="isOpen"
-      class="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 sm:p-6"
-      role="dialog"
-      aria-modal="true"
-    >
+    <div v-if="isOpen" class="fixed inset-0 z-50 overflow-y-auto">
       <!-- Backdrop -->
       <div
-        class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs transition-opacity"
+        class="fixed inset-0 bg-black/40 transition-opacity"
         @click="emit('close')"
       ></div>
 
-      <!-- Modal Card -->
-      <div
-        class="relative w-full bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden transform transition-all z-10 my-8"
-        :class="maxWidth"
-        @click.stop
-      >
-        <!-- Header -->
-        <div v-if="title" class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-          <h3 class="text-base sm:text-lg font-bold text-slate-900">{{ title }}</h3>
-          <button
-            type="button"
-            @click="emit('close')"
-            class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900 flex items-center justify-center transition-colors cursor-pointer"
-            aria-label="Close dialog"
-          >
-            ✕
-          </button>
-        </div>
-
-        <button
-          v-else
-          type="button"
-          @click="emit('close')"
-          class="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-white/80 hover:bg-slate-100 text-slate-500 hover:text-slate-900 flex items-center justify-center transition-colors cursor-pointer shadow-xs"
-          aria-label="Close dialog"
+      <!-- Center Container -->
+      <div class="flex min-h-full items-center justify-center p-4">
+        <div
+          class="relative w-full bg-white rounded-lg border border-gray-200 shadow-xl overflow-hidden text-gray-900 z-10"
+          :class="maxWidth"
+          @click.stop
         >
-          ✕
-        </button>
+          <!-- Modal Header -->
+          <div v-if="title" class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+            <h3 class="text-base font-bold text-gray-900">{{ title }}</h3>
+            <button
+              type="button"
+              @click="emit('close')"
+              class="text-gray-400 hover:text-gray-600 rounded p-1 cursor-pointer"
+            >
+              ✕
+            </button>
+          </div>
 
-        <!-- Body -->
-        <div class="p-6">
-          <slot />
+          <!-- Modal Body -->
+          <div class="p-6">
+            <slot />
+          </div>
         </div>
       </div>
     </div>

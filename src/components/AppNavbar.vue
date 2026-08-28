@@ -1,19 +1,16 @@
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import {
   cartCount,
-  compareList,
+  categories,
   currentUser,
+  isCartDrawerOpen,
   logoutUser,
-  mobileMenuOpen,
-  notificationPanelOpen,
-  openCartDrawer,
-  toggleNotificationPanel,
   unreadNotificationsCount,
   wishlistCount,
 } from '../data/store'
-import NotificationPanel from './NotificationPanel.vue'
 import SearchAutocomplete from './SearchAutocomplete.vue'
+import NotificationPanel from './NotificationPanel.vue'
 
 const props = defineProps({
   navigate: {
@@ -27,407 +24,271 @@ const props = defineProps({
 })
 
 const isUserMenuOpen = ref(false)
-
-const handleNav = (page, params = null) => {
-  mobileMenuOpen.value = false
-  isUserMenuOpen.value = false
-  notificationPanelOpen.value = false
-  props.navigate(page, params)
-}
+const isNotificationsOpen = ref(false)
+const isMobileMenuOpen = ref(false)
 
 const handleLogout = () => {
-  isUserMenuOpen.value = false
   logoutUser()
+  isUserMenuOpen.value = false
   props.navigate('home')
 }
 </script>
 
 <template>
-  <header class="bg-white/95 backdrop-blur-md border-b border-slate-200 sticky top-0 z-40 transition-all">
+  <header class="bg-white border-b border-gray-200 sticky top-0 z-40">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-16 sm:h-20 gap-3 sm:gap-6">
-        <!-- Brand Logo -->
-        <div class="flex items-center gap-3">
-          <!-- Mobile menu button -->
-          <button
-            type="button"
-            @click="mobileMenuOpen = !mobileMenuOpen"
-            class="md:hidden p-2 rounded-xl text-slate-700 hover:bg-slate-100 focus:outline-hidden"
-            aria-label="Toggle navigation menu"
-          >
-            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path v-if="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-              <path v-else stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-
+      <div class="flex items-center justify-between h-16 gap-4 sm:gap-6">
+        
+        <!-- Left: Brand Logo -->
+        <div class="flex items-center gap-6">
           <a
             href="/"
-            class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight hover:text-indigo-600 transition-colors no-underline flex items-center gap-2.5"
-            @click.prevent="handleNav('home')"
+            @click.prevent="navigate('home')"
+            class="flex items-center gap-2 text-xl font-bold text-gray-900 no-underline cursor-pointer"
           >
-            <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-700 to-sky-500 text-white flex items-center justify-center font-extrabold shadow-md shadow-indigo-500/25">
-              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
+            <div class="w-8 h-8 rounded bg-blue-600 text-white flex items-center justify-center font-bold text-sm">
+              TN
             </div>
-            <div class="flex flex-col">
-              <span class="leading-none font-black tracking-tight text-slate-900">Tech<span class="text-indigo-600">Nova</span></span>
-              <span class="text-[9px] uppercase tracking-widest text-slate-400 font-bold hidden sm:block">Next-Gen Electronics</span>
-            </div>
+            <span>Tech<span class="text-blue-600">Nova</span></span>
           </a>
+
+          <!-- Desktop Nav Links -->
+          <nav class="hidden md:flex items-center gap-5 text-sm font-medium text-gray-700">
+            <button
+              type="button"
+              @click="navigate('home')"
+              class="hover:text-blue-600 transition-colors cursor-pointer py-1"
+              :class="{ 'text-blue-600 font-semibold': currentPage === 'welcome' }"
+            >
+              Home
+            </button>
+
+            <button
+              type="button"
+              @click="navigate('shop')"
+              class="hover:text-blue-600 transition-colors cursor-pointer py-1"
+              :class="{ 'text-blue-600 font-semibold': currentPage === 'shop' }"
+            >
+              Shop
+            </button>
+
+            <button
+              type="button"
+              @click="navigate('deals')"
+              class="hover:text-blue-600 transition-colors cursor-pointer py-1 flex items-center gap-1"
+              :class="{ 'text-blue-600 font-semibold': currentPage === 'deals' }"
+            >
+              <span>Deals</span>
+              <span class="bg-red-100 text-red-600 text-[10px] font-bold px-1.5 py-0.2 rounded">SALE</span>
+            </button>
+
+            <button
+              type="button"
+              @click="navigate('compare')"
+              class="hover:text-blue-600 transition-colors cursor-pointer py-1"
+              :class="{ 'text-blue-600 font-semibold': currentPage === 'compare' }"
+            >
+              Compare
+            </button>
+          </nav>
         </div>
 
-        <!-- Center: Search Bar with Autocomplete -->
-        <div class="hidden md:flex flex-1 max-w-lg mx-2">
+        <!-- Center: Search Bar -->
+        <div class="flex-1 max-w-md hidden sm:block">
           <SearchAutocomplete :navigate="navigate" />
         </div>
 
-        <!-- Desktop Navigation Links -->
-        <nav class="hidden lg:flex items-center gap-1 text-sm font-semibold text-slate-600">
-          <button
-            type="button"
-            @click="handleNav('home')"
-            class="px-3 py-2 rounded-xl transition-colors cursor-pointer"
-            :class="currentPage === 'welcome' ? 'text-indigo-600 bg-indigo-50 font-bold' : 'hover:text-slate-900 hover:bg-slate-50'"
-          >
-            Home
-          </button>
-
-          <button
-            type="button"
-            @click="handleNav('shop')"
-            class="px-3 py-2 rounded-xl transition-colors cursor-pointer"
-            :class="currentPage === 'shop' ? 'text-indigo-600 bg-indigo-50 font-bold' : 'hover:text-slate-900 hover:bg-slate-50'"
-          >
-            Shop Catalog
-          </button>
-
-          <button
-            type="button"
-            @click="handleNav('deals')"
-            class="px-3 py-2 rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer"
-            :class="currentPage === 'deals' ? 'text-indigo-600 bg-indigo-50 font-bold' : 'hover:text-slate-900 hover:bg-slate-50'"
-          >
-            <span>Deals</span>
-            <span class="px-1.5 py-0.2 rounded-full text-[9px] font-black uppercase bg-rose-500 text-white animate-badge">
-              Hot
-            </span>
-          </button>
-
-          <button
-            type="button"
-            @click="handleNav('compare')"
-            class="px-3 py-2 rounded-xl transition-colors flex items-center gap-1 cursor-pointer"
-            :class="currentPage === 'compare' ? 'text-indigo-600 bg-indigo-50 font-bold' : 'hover:text-slate-900 hover:bg-slate-50'"
-          >
-            <span>Compare</span>
-            <span v-if="compareList.length > 0" class="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-slate-200 text-slate-800">
-              {{ compareList.length }}
-            </span>
-          </button>
-        </nav>
-
-        <!-- Right Side Quick Actions -->
-        <div class="flex items-center gap-1.5 sm:gap-3">
+        <!-- Right: Actions (Wishlist, Notifications, Cart, Account) -->
+        <div class="flex items-center gap-1 sm:gap-3">
           <!-- Notification Bell -->
           <div class="relative">
             <button
               type="button"
-              @click="toggleNotificationPanel"
-              class="relative p-2.5 rounded-2xl text-slate-600 hover:text-indigo-600 hover:bg-slate-100 transition-colors cursor-pointer"
-              title="Notifications"
+              @click="isNotificationsOpen = !isNotificationsOpen"
+              class="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors relative cursor-pointer"
               aria-label="Notifications"
             >
-              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
               </svg>
               <span
                 v-if="unreadNotificationsCount > 0"
-                class="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-indigo-600 text-white text-[9px] font-extrabold flex items-center justify-center ring-2 ring-white"
+                class="absolute top-1 right-1 w-4 h-4 bg-red-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center"
               >
                 {{ unreadNotificationsCount }}
               </span>
             </button>
 
-            <!-- Dropdown Component -->
-            <NotificationPanel :navigate="navigate" />
+            <NotificationPanel
+              :is-open="isNotificationsOpen"
+              :navigate="navigate"
+              @close="isNotificationsOpen = false"
+            />
           </div>
 
           <!-- Wishlist Button -->
           <button
             type="button"
-            @click="handleNav('wishlist')"
-            class="relative p-2.5 rounded-2xl text-slate-600 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
-            title="Wishlist"
+            @click="navigate('wishlist')"
+            class="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors relative cursor-pointer hidden sm:flex items-center gap-1.5"
             aria-label="Wishlist"
           >
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
             </svg>
             <span
               v-if="wishlistCount > 0"
-              class="absolute top-1.5 right-1.5 bg-rose-500 text-white text-[9px] font-extrabold w-4 h-4 rounded-full flex items-center justify-center ring-2 ring-white"
+              class="bg-gray-200 text-gray-800 text-xs font-semibold px-1.5 py-0.2 rounded"
             >
               {{ wishlistCount }}
             </span>
           </button>
 
-          <!-- Cart Drawer Button -->
+          <!-- Cart Button -->
           <button
             type="button"
-            @click="openCartDrawer"
-            class="relative inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white text-xs sm:text-sm font-bold shadow-md shadow-indigo-600/20 hover:shadow-indigo-600/30 transition-all cursor-pointer"
-            aria-label="View Cart"
+            @click="isCartDrawerOpen = true"
+            class="p-2 bg-gray-100 hover:bg-gray-200 text-gray-900 rounded-md transition-colors flex items-center gap-2 cursor-pointer"
+            aria-label="Shopping Cart"
           >
-            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+            <svg class="w-5 h-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
             </svg>
-            <span class="hidden sm:inline">Cart</span>
-            <span
-              v-if="cartCount > 0"
-              class="bg-white text-indigo-700 text-xs font-black px-1.5 py-0.2 rounded-full min-w-[20px] text-center"
-            >
+            <span class="text-xs font-bold bg-blue-600 text-white px-1.5 py-0.5 rounded">
               {{ cartCount }}
             </span>
           </button>
 
-          <!-- User Account Menu -->
+          <!-- User Profile Dropdown -->
           <div class="relative">
             <button
+              v-if="currentUser"
               type="button"
               @click="isUserMenuOpen = !isUserMenuOpen"
-              class="p-1 rounded-2xl border border-slate-200 hover:border-indigo-400 flex items-center gap-2 transition-all cursor-pointer"
-              aria-label="User Account"
+              class="flex items-center gap-2 p-1.5 rounded-md hover:bg-gray-100 transition-colors cursor-pointer"
             >
               <img
-                v-if="currentUser?.avatar"
                 :src="currentUser.avatar"
                 :alt="currentUser.name"
-                class="w-7 h-7 sm:w-8 sm:h-8 rounded-xl object-cover"
+                class="w-7 h-7 rounded-full object-cover border border-gray-300"
               />
-              <div
-                v-else
-                class="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs"
-              >
-                👤
-              </div>
-            </button>
-
-            <!-- User Menu Dropdown -->
-            <div
-              v-if="isUserMenuOpen"
-              class="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 z-50 animate-in fade-in zoom-in-95 duration-150 text-xs"
-              @click="isUserMenuOpen = false"
-            >
-              <template v-if="currentUser">
-                <div class="px-4 py-3 border-b border-slate-100 flex items-center gap-3">
-                  <img :src="currentUser.avatar" class="w-10 h-10 rounded-xl object-cover" />
-                  <div class="min-w-0">
-                    <p class="font-bold text-slate-900 text-sm truncate">{{ currentUser.name }}</p>
-                    <p class="text-[11px] text-slate-500 truncate">{{ currentUser.email }}</p>
-                    <span class="inline-block mt-0.5 text-[10px] font-extrabold px-1.5 py-0.2 rounded-md bg-amber-100 text-amber-800">
-                      ★ {{ currentUser.rewardPoints || 0 }} pts
-                    </span>
-                  </div>
-                </div>
-
-                <div class="py-1">
-                  <button
-                    type="button"
-                    @click="handleNav('account')"
-                    class="w-full text-left px-4 py-2 hover:bg-slate-50 text-slate-700 font-semibold flex items-center gap-2 cursor-pointer"
-                  >
-                    <span>📊</span> Account Dashboard
-                  </button>
-                  <button
-                    type="button"
-                    @click="handleNav('account/orders')"
-                    class="w-full text-left px-4 py-2 hover:bg-slate-50 text-slate-700 font-semibold flex items-center gap-2 cursor-pointer"
-                  >
-                    <span>📦</span> Order History
-                  </button>
-                  <button
-                    type="button"
-                    @click="handleNav('account/addresses')"
-                    class="w-full text-left px-4 py-2 hover:bg-slate-50 text-slate-700 font-semibold flex items-center gap-2 cursor-pointer"
-                  >
-                    <span>📍</span> Saved Addresses
-                  </button>
-                  <button
-                    type="button"
-                    @click="handleNav('account/notifications')"
-                    class="w-full text-left px-4 py-2 hover:bg-slate-50 text-slate-700 font-semibold flex items-center gap-2 cursor-pointer"
-                  >
-                    <span>🔔</span> Notifications
-                  </button>
-                  <button
-                    type="button"
-                    @click="handleNav('account/security')"
-                    class="w-full text-left px-4 py-2 hover:bg-slate-50 text-slate-700 font-semibold flex items-center gap-2 cursor-pointer"
-                  >
-                    <span>🔐</span> Security & Passwords
-                  </button>
-                </div>
-
-                <div class="pt-1 border-t border-slate-100">
-                  <button
-                    type="button"
-                    @click="handleLogout"
-                    class="w-full text-left px-4 py-2 hover:bg-rose-50 text-rose-600 font-bold flex items-center gap-2 cursor-pointer"
-                  >
-                    <span>🚪</span> Sign Out
-                  </button>
-                </div>
-              </template>
-
-              <template v-else>
-                <div class="p-3 text-center border-b border-slate-100">
-                  <p class="font-bold text-slate-900 text-sm">Welcome to TechNova</p>
-                  <p class="text-[11px] text-slate-500 mt-0.5">Sign in to track orders & earn reward points</p>
-                </div>
-
-                <div class="p-2 space-y-1.5">
-                  <button
-                    type="button"
-                    @click="handleNav('login')"
-                    class="w-full py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-center cursor-pointer shadow-xs"
-                  >
-                    Sign In
-                  </button>
-                  <button
-                    type="button"
-                    @click="handleNav('register')"
-                    class="w-full py-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-center cursor-pointer"
-                  >
-                    Create Account
-                  </button>
-                </div>
-              </template>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Mobile Search Bar Expanded -->
-      <div class="md:hidden py-2.5 border-t border-slate-100">
-        <SearchAutocomplete :navigate="navigate" :is-mobile="true" />
-      </div>
-    </div>
-
-    <!-- Mobile Drawer Menu (Slide from Left) -->
-    <div v-if="mobileMenuOpen" class="md:hidden fixed inset-0 z-50 flex">
-      <div class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs" @click="mobileMenuOpen = false"></div>
-
-      <div class="relative w-4/5 max-w-xs bg-white h-full shadow-2xl p-6 flex flex-col justify-between overflow-y-auto">
-        <div>
-          <!-- Header -->
-          <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
-            <div class="flex items-center gap-2">
-              <span class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-sm">
-                TN
+              <span class="text-xs font-medium text-gray-700 hidden lg:inline max-w-[100px] truncate">
+                {{ currentUser.name.split(' ')[0] }}
               </span>
-              <span class="font-black text-slate-900 text-lg">TechNova</span>
-            </div>
-            <button
-              type="button"
-              @click="mobileMenuOpen = false"
-              class="text-slate-400 hover:text-slate-900 p-1"
-            >
-              ✕
             </button>
-          </div>
 
-          <!-- Links -->
-          <div class="space-y-2">
             <button
+              v-else
               type="button"
-              @click="handleNav('home')"
-              class="w-full text-left px-3 py-2.5 rounded-xl font-bold text-sm"
-              :class="currentPage === 'welcome' ? 'bg-indigo-50 text-indigo-700' : 'text-slate-700 hover:bg-slate-50'"
-            >
-              🏠 Home
-            </button>
-            <button
-              type="button"
-              @click="handleNav('shop')"
-              class="w-full text-left px-3 py-2.5 rounded-xl font-bold text-sm"
-              :class="currentPage === 'shop' ? 'bg-indigo-50 text-indigo-700' : 'text-slate-700 hover:bg-slate-50'"
-            >
-              🛍️ Shop Catalog
-            </button>
-            <button
-              type="button"
-              @click="handleNav('deals')"
-              class="w-full text-left px-3 py-2.5 rounded-xl font-bold text-sm flex items-center justify-between"
-              :class="currentPage === 'deals' ? 'bg-indigo-50 text-indigo-700' : 'text-slate-700 hover:bg-slate-50'"
-            >
-              <span>🔥 Flash Deals</span>
-              <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-500 text-white">Sale</span>
-            </button>
-            <button
-              type="button"
-              @click="handleNav('compare')"
-              class="w-full text-left px-3 py-2.5 rounded-xl font-bold text-sm"
-              :class="currentPage === 'compare' ? 'bg-indigo-50 text-indigo-700' : 'text-slate-700 hover:bg-slate-50'"
-            >
-              ⚖️ Product Comparison
-            </button>
-            <button
-              type="button"
-              @click="handleNav('wishlist')"
-              class="w-full text-left px-3 py-2.5 rounded-xl font-bold text-sm"
-              :class="currentPage === 'wishlist' ? 'bg-indigo-50 text-indigo-700' : 'text-slate-700 hover:bg-slate-50'"
-            >
-              ♡ My Wishlist ({{ wishlistCount }})
-            </button>
-            <button
-              type="button"
-              @click="handleNav('order-tracking')"
-              class="w-full text-left px-3 py-2.5 rounded-xl font-bold text-sm"
-              :class="currentPage === 'order-tracking' ? 'bg-indigo-50 text-indigo-700' : 'text-slate-700 hover:bg-slate-50'"
-            >
-              📍 Track Order
-            </button>
-          </div>
-        </div>
-
-        <!-- Footer in Drawer -->
-        <div class="pt-6 border-t border-slate-100">
-          <div v-if="currentUser" class="space-y-2">
-            <button
-              type="button"
-              @click="handleNav('account')"
-              class="w-full py-2.5 rounded-xl bg-slate-900 text-white font-bold text-xs text-center"
-            >
-              Account Hub
-            </button>
-            <button
-              type="button"
-              @click="handleLogout"
-              class="w-full py-2 rounded-xl text-rose-600 hover:bg-rose-50 font-bold text-xs text-center"
-            >
-              Sign Out
-            </button>
-          </div>
-
-          <div v-else class="space-y-2">
-            <button
-              type="button"
-              @click="handleNav('login')"
-              class="w-full py-2.5 rounded-xl bg-indigo-600 text-white font-bold text-xs text-center"
+              @click="navigate('login')"
+              class="px-3 py-1.5 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium transition-colors cursor-pointer"
             >
               Sign In
             </button>
-            <button
-              type="button"
-              @click="handleNav('register')"
-              class="w-full py-2.5 rounded-xl border border-slate-200 text-slate-700 font-bold text-xs text-center"
+
+            <!-- User Menu -->
+            <div
+              v-if="isUserMenuOpen && currentUser"
+              class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg py-1 z-50 text-xs"
             >
-              Register
-            </button>
+              <div class="px-3 py-2 border-b border-gray-100">
+                <p class="font-bold text-gray-900 truncate">{{ currentUser.name }}</p>
+                <p class="text-gray-500 truncate text-[11px]">{{ currentUser.email }}</p>
+              </div>
+
+              <button
+                type="button"
+                @click="navigate('account'); isUserMenuOpen = false"
+                class="w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-50 font-medium cursor-pointer"
+              >
+                Account Hub
+              </button>
+
+              <button
+                type="button"
+                @click="navigate('account/orders'); isUserMenuOpen = false"
+                class="w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-50 font-medium cursor-pointer"
+              >
+                Orders & Tracking
+              </button>
+
+              <button
+                type="button"
+                @click="navigate('account/addresses'); isUserMenuOpen = false"
+                class="w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-50 font-medium cursor-pointer"
+              >
+                Saved Addresses
+              </button>
+
+              <button
+                type="button"
+                @click="navigate('account/settings'); isUserMenuOpen = false"
+                class="w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-50 font-medium cursor-pointer"
+              >
+                Settings
+              </button>
+
+              <div class="border-t border-gray-100 my-1"></div>
+
+              <button
+                type="button"
+                @click="handleLogout"
+                class="w-full text-left px-3 py-2 text-red-600 hover:bg-red-50 font-medium cursor-pointer"
+              >
+                Sign Out
+              </button>
+            </div>
           </div>
+
+          <!-- Mobile Hamburger Toggle -->
+          <button
+            type="button"
+            @click="isMobileMenuOpen = !isMobileMenuOpen"
+            class="md:hidden p-2 text-gray-600 hover:text-gray-900 rounded-md hover:bg-gray-100 cursor-pointer"
+            aria-label="Menu"
+          >
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
         </div>
+      </div>
+
+      <!-- Mobile Search Bar (Below Navbar on small screens) -->
+      <div class="sm:hidden pb-3">
+        <SearchAutocomplete :navigate="navigate" />
+      </div>
+
+      <!-- Mobile Menu Dropdown -->
+      <div v-if="isMobileMenuOpen" class="md:hidden py-3 border-t border-gray-200 text-sm space-y-2">
+        <button
+          type="button"
+          @click="navigate('home'); isMobileMenuOpen = false"
+          class="block w-full text-left px-3 py-2 rounded-md font-medium text-gray-700 hover:bg-gray-50"
+        >
+          Home
+        </button>
+        <button
+          type="button"
+          @click="navigate('shop'); isMobileMenuOpen = false"
+          class="block w-full text-left px-3 py-2 rounded-md font-medium text-gray-700 hover:bg-gray-50"
+        >
+          Shop Products
+        </button>
+        <button
+          type="button"
+          @click="navigate('deals'); isMobileMenuOpen = false"
+          class="block w-full text-left px-3 py-2 rounded-md font-medium text-gray-700 hover:bg-gray-50"
+        >
+          Flash Deals & Coupons
+        </button>
+        <button
+          type="button"
+          @click="navigate('compare'); isMobileMenuOpen = false"
+          class="block w-full text-left px-3 py-2 rounded-md font-medium text-gray-700 hover:bg-gray-50"
+        >
+          Product Comparison
+        </button>
       </div>
     </div>
   </header>

@@ -1,72 +1,52 @@
 <script setup>
 import { ref } from 'vue'
-import { appliedCoupon, applyCoupon, formatPrice, removeCoupon } from '../data/store'
+import { appliedCoupon, applyCoupon, removeCoupon } from '../data/store'
 
-const couponInput = ref('')
-const isApplying = ref(false)
+const couponCode = ref('')
 
 const handleApply = () => {
-  if (!couponInput.value.trim()) return
-  isApplying.value = true
-  setTimeout(() => {
-    applyCoupon(couponInput.value)
-    couponInput.value = ''
-    isApplying.value = false
-  }, 200)
+  if (couponCode.value.trim()) {
+    applyCoupon(couponCode.value)
+    couponCode.value = ''
+  }
 }
 </script>
 
 <template>
-  <div class="space-y-2">
-    <!-- Input Form when no coupon applied -->
-    <form v-if="!appliedCoupon" @submit.prevent="handleApply" class="flex gap-2">
-      <div class="relative flex-1">
-        <input
-          v-model="couponInput"
-          type="text"
-          placeholder="Promo code (e.g. TECH10, SAVE20)"
-          class="w-full bg-white text-slate-900 placeholder:text-slate-400 text-xs sm:text-sm rounded-xl px-3.5 py-2.5 border border-slate-200 focus:outline-hidden focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 uppercase font-mono tracking-wider transition-all"
-        />
-      </div>
-
-      <button
-        type="submit"
-        :disabled="!couponInput.trim() || isApplying"
-        class="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-indigo-600 disabled:opacity-40 disabled:hover:bg-slate-900 text-white text-xs sm:text-sm font-bold transition-all shrink-0 cursor-pointer shadow-xs"
-      >
-        {{ isApplying ? 'Checking...' : 'Apply' }}
-      </button>
-    </form>
-
-    <!-- Active coupon badge -->
+  <div class="space-y-2 text-xs">
+    <!-- Active Coupon Badge -->
     <div
-      v-else
-      class="flex items-center justify-between p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900"
+      v-if="appliedCoupon"
+      class="flex items-center justify-between p-2 rounded bg-emerald-50 border border-emerald-200 text-emerald-800"
     >
-      <div class="flex items-center gap-2">
-        <span class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xs">
-          %
-        </span>
-        <div>
-          <div class="flex items-center gap-1.5">
-            <span class="font-mono font-bold text-xs sm:text-sm text-emerald-900">{{ appliedCoupon.code }}</span>
-            <span class="text-[10px] uppercase font-extrabold px-1.5 py-0.2 rounded-full bg-emerald-200 text-emerald-800">
-              Applied
-            </span>
-          </div>
-          <p class="text-[11px] text-emerald-700 font-medium mt-0.5">
-            {{ appliedCoupon.description }}
-          </p>
-        </div>
+      <div class="flex items-center gap-1.5">
+        <span>✓</span>
+        <span>Coupon <strong>{{ appliedCoupon.code }}</strong> applied</span>
       </div>
-
       <button
         type="button"
         @click="removeCoupon"
-        class="text-xs font-semibold text-rose-600 hover:text-rose-800 hover:underline p-1 cursor-pointer"
+        class="text-xs text-red-600 hover:underline font-bold cursor-pointer"
       >
         Remove
       </button>
     </div>
+
+    <!-- Input Form -->
+    <form v-else @submit.prevent="handleApply" class="flex gap-2">
+      <input
+        v-model="couponCode"
+        type="text"
+        placeholder="Enter promo code"
+        class="flex-1 uppercase bg-white border border-gray-300 rounded px-3 py-2 text-xs text-gray-900 placeholder:text-gray-400 focus:outline-hidden focus:border-blue-600 font-mono"
+      />
+      <button
+        type="submit"
+        :disabled="!couponCode.trim()"
+        class="px-4 py-2 bg-gray-900 hover:bg-gray-800 disabled:bg-gray-200 disabled:text-gray-400 text-white font-medium rounded text-xs transition-colors cursor-pointer"
+      >
+        Apply
+      </button>
+    </form>
   </div>
 </template>

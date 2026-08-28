@@ -187,7 +187,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col bg-slate-50 font-sans text-slate-900 antialiased selection:bg-indigo-600 selection:text-white pb-14 md:pb-0">
+  <div class="min-h-screen flex flex-col bg-gray-50 font-sans text-gray-900 antialiased selection:bg-blue-600 selection:text-white pb-14 md:pb-0">
     <!-- Top Announcement Bar -->
     <AppHeader v-if="!isAuthPage" :navigate="navigate" />
 

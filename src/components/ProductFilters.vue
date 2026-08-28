@@ -1,199 +1,247 @@
 <script setup>
 import { computed } from 'vue'
-import {
-  brands,
-  categories,
-  inStockOnlyFilter,
-  minRatingFilter,
-  onSaleOnlyFilter,
-  priceFilter,
-  searchQuery,
-  selectedBrand,
-  selectedCategory,
-  sortBy,
-} from '../data/store'
+import { brands, categories, formatPrice } from '../data/store'
+import AppIcon from './AppIcon.vue'
 
 const props = defineProps({
-  isMobileDrawer: {
+  selectedCategory: {
+    type: String,
+    default: 'All',
+  },
+  selectedBrand: {
+    type: String,
+    default: 'All',
+  },
+  priceRange: {
+    type: Number,
+    default: 3000,
+  },
+  minRating: {
+    type: Number,
+    default: 0,
+  },
+  onlyInStock: {
+    type: Boolean,
+    default: false,
+  },
+  onlyOnSale: {
+    type: Boolean,
+    default: false,
+  },
+  isMobileOpen: {
     type: Boolean,
     default: false,
   },
 })
 
-const emit = defineEmits(['close'])
-
-const resetAllFilters = () => {
-  selectedCategory.value = 'all'
-  selectedBrand.value = 'All Brands'
-  priceFilter.value = 3000
-  minRatingFilter.value = 0
-  inStockOnlyFilter.value = false
-  onSaleOnlyFilter.value = false
-  searchQuery.value = ''
-  sortBy.value = 'featured'
-  if (props.isMobileDrawer) emit('close')
-}
+const emit = defineEmits([
+  'update:selectedCategory',
+  'update:selectedBrand',
+  'update:priceRange',
+  'update:minRating',
+  'update:onlyInStock',
+  'update:onlyOnSale',
+  'reset',
+  'closeMobile',
+])
 
 const activeFiltersCount = computed(() => {
   let count = 0
-  if (selectedCategory.value !== 'all') count++
-  if (selectedBrand.value !== 'All Brands') count++
-  if (priceFilter.value < 3000) count++
-  if (minRatingFilter.value > 0) count++
-  if (inStockOnlyFilter.value) count++
-  if (onSaleOnlyFilter.value) count++
-  if (searchQuery.value.trim()) count++
+  if (props.selectedCategory !== 'All') count++
+  if (props.selectedBrand !== 'All') count++
+  if (props.priceRange < 3000) count++
+  if (props.minRating > 0) count++
+  if (props.onlyInStock) count++
+  if (props.onlyOnSale) count++
   return count
 })
 </script>
 
 <template>
-  <div class="space-y-6">
-    <!-- Header with clear all -->
-    <div class="flex items-center justify-between pb-3 border-b border-slate-200">
-      <div class="flex items-center gap-2">
-        <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider">Filters</h3>
-        <span
-          v-if="activeFiltersCount > 0"
-          class="px-2 py-0.2 rounded-full text-[10px] font-extrabold bg-indigo-600 text-white"
-        >
-          {{ activeFiltersCount }}
-        </span>
+  <div>
+    <!-- Mobile Drawer Overlay -->
+    <div
+      v-if="isMobileOpen"
+      @click="emit('closeMobile')"
+      class="fixed inset-0 bg-black/40 z-50 lg:hidden"
+    ></div>
+
+    <!-- Filter Content Wrapper (Sidebar or Mobile Drawer) -->
+    <aside
+      class="bg-white rounded-lg border border-gray-200 p-4 space-y-6 text-xs"
+      :class="[
+        isMobileOpen
+          ? 'fixed inset-y-0 left-0 max-w-xs w-full z-50 shadow-xl overflow-y-auto rounded-none'
+          : 'hidden lg:block'
+      ]"
+    >
+      <!-- Header -->
+      <div class="flex items-center justify-between pb-3 border-b border-gray-200">
+        <div class="flex items-center gap-2">
+          <h3 class="text-sm font-bold text-gray-900">Filters</h3>
+          <span
+            v-if="activeFiltersCount > 0"
+            class="bg-blue-100 text-blue-800 text-[10px] font-bold px-1.5 py-0.2 rounded"
+          >
+            {{ activeFiltersCount }}
+          </span>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button
+            v-if="activeFiltersCount > 0"
+            type="button"
+            @click="emit('reset')"
+            class="text-blue-600 hover:underline font-semibold cursor-pointer text-xs"
+          >
+            Reset
+          </button>
+          <button
+            v-if="isMobileOpen"
+            type="button"
+            @click="emit('closeMobile')"
+            class="lg:hidden text-gray-400 hover:text-gray-600 text-sm cursor-pointer p-1"
+          >
+            ✕
+          </button>
+        </div>
       </div>
 
-      <button
-        v-if="activeFiltersCount > 0"
-        type="button"
-        @click="resetAllFilters"
-        class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 hover:underline cursor-pointer"
-      >
-        Clear all
-      </button>
-    </div>
+      <!-- Categories Filter -->
+      <div class="space-y-2">
+        <h4 class="font-bold text-gray-900 text-xs">Categories</h4>
+        <div class="space-y-1">
+          <button
+            type="button"
+            @click="emit('update:selectedCategory', 'All')"
+            class="w-full text-left px-2.5 py-1.5 rounded transition-colors flex items-center justify-between cursor-pointer"
+            :class="selectedCategory === 'All' ? 'bg-blue-50 text-blue-700 font-semibold' : 'text-gray-700 hover:bg-gray-50'"
+          >
+            <span>All Categories</span>
+          </button>
 
-    <!-- 1. Categories Filter -->
-    <div class="space-y-2">
-      <h4 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Category</h4>
-      <div class="space-y-1">
-        <button
-          v-for="cat in categories"
-          :key="cat.id"
-          type="button"
-          @click="selectedCategory = cat.id"
-          class="w-full flex items-center justify-between px-3 py-1.5 rounded-xl text-xs font-medium transition-all text-left cursor-pointer"
-          :class="selectedCategory === cat.id
-            ? 'bg-indigo-50 text-indigo-700 font-bold'
-            : 'text-slate-600 hover:bg-slate-100'"
-        >
-          <span>{{ cat.name }}</span>
-          <span class="text-[11px] opacity-60">({{ cat.count }})</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- 2. Brands Filter -->
-    <div class="space-y-2 pt-4 border-t border-slate-200">
-      <h4 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Brand</h4>
-      <div class="space-y-1 max-h-48 overflow-y-auto pr-1">
-        <button
-          v-for="b in brands"
-          :key="b"
-          type="button"
-          @click="selectedBrand = b"
-          class="w-full flex items-center justify-between px-3 py-1.5 rounded-xl text-xs font-medium transition-all text-left cursor-pointer"
-          :class="selectedBrand === b
-            ? 'bg-indigo-50 text-indigo-700 font-bold'
-            : 'text-slate-600 hover:bg-slate-100'"
-        >
-          <span>{{ b }}</span>
-          <span v-if="selectedBrand === b" class="text-indigo-600 font-bold">✓</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- 3. Price Filter Slider -->
-    <div class="space-y-3 pt-4 border-t border-slate-200">
-      <div class="flex items-center justify-between">
-        <h4 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Max Price</h4>
-        <span class="text-xs font-extrabold text-slate-900 font-mono">${{ priceFilter }}</span>
+          <button
+            v-for="cat in categories.filter(c => c.id !== 'all')"
+            :key="cat.id"
+            type="button"
+            @click="emit('update:selectedCategory', cat.id)"
+            class="w-full text-left px-2.5 py-1.5 rounded transition-colors flex items-center justify-between cursor-pointer"
+            :class="selectedCategory === cat.id ? 'bg-blue-50 text-blue-700 font-semibold' : 'text-gray-700 hover:bg-gray-50'"
+          >
+            <span>{{ cat.name }}</span>
+            <span class="text-gray-400 text-[10px]">{{ cat.count }}</span>
+          </button>
+        </div>
       </div>
 
-      <input
-        v-model.number="priceFilter"
-        type="range"
-        min="50"
-        max="3000"
-        step="50"
-        class="w-full accent-indigo-600 cursor-pointer h-1.5 bg-slate-200 rounded-lg"
-      />
+      <!-- Brands Filter -->
+      <div class="space-y-2 pt-4 border-t border-gray-100">
+        <h4 class="font-bold text-gray-900 text-xs">Brands</h4>
+        <div class="space-y-1 max-h-40 overflow-y-auto pr-1">
+          <button
+            type="button"
+            @click="emit('update:selectedBrand', 'All')"
+            class="w-full text-left px-2.5 py-1.5 rounded transition-colors flex items-center justify-between cursor-pointer"
+            :class="selectedBrand === 'All' ? 'bg-blue-50 text-blue-700 font-semibold' : 'text-gray-700 hover:bg-gray-50'"
+          >
+            <span>All Brands</span>
+          </button>
 
-      <div class="flex items-center justify-between text-[10px] text-slate-400 font-mono">
-        <span>$50</span>
-        <span>$1,500</span>
-        <span>$3,000+</span>
+          <button
+            v-for="b in brands"
+            :key="b"
+            type="button"
+            @click="emit('update:selectedBrand', b)"
+            class="w-full text-left px-2.5 py-1.5 rounded transition-colors flex items-center justify-between cursor-pointer"
+            :class="selectedBrand === b ? 'bg-blue-50 text-blue-700 font-semibold' : 'text-gray-700 hover:bg-gray-50'"
+          >
+            <span>{{ b }}</span>
+          </button>
+        </div>
       </div>
-    </div>
 
-    <!-- 4. Rating Filter -->
-    <div class="space-y-2 pt-4 border-t border-slate-200">
-      <h4 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Customer Rating</h4>
-      <div class="space-y-1.5">
-        <button
-          type="button"
-          @click="minRatingFilter = 0"
-          class="w-full flex items-center justify-between px-3 py-1.5 rounded-xl text-xs transition-colors cursor-pointer"
-          :class="minRatingFilter === 0 ? 'bg-indigo-50 text-indigo-700 font-bold' : 'text-slate-600 hover:bg-slate-100'"
-        >
-          <span>All Ratings</span>
-        </button>
-
-        <button
-          v-for="stars in [4.5, 4.0, 3.5]"
-          :key="stars"
-          type="button"
-          @click="minRatingFilter = stars"
-          class="w-full flex items-center justify-between px-3 py-1.5 rounded-xl text-xs transition-colors cursor-pointer"
-          :class="minRatingFilter === stars ? 'bg-indigo-50 text-indigo-700 font-bold' : 'text-slate-600 hover:bg-slate-100'"
-        >
-          <div class="flex items-center gap-1">
-            <span class="text-amber-400">★</span>
-            <span>{{ stars }} & up</span>
-          </div>
-          <span v-if="minRatingFilter === stars" class="text-indigo-600 font-bold">✓</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- 5. Toggles (In Stock / Sale) -->
-    <div class="space-y-3 pt-4 border-t border-slate-200">
-      <label class="flex items-center justify-between cursor-pointer group">
-        <span class="text-xs font-medium text-slate-700 group-hover:text-slate-900">In Stock Only</span>
+      <!-- Price Range Filter -->
+      <div class="space-y-2 pt-4 border-t border-gray-100">
+        <div class="flex justify-between items-center">
+          <h4 class="font-bold text-gray-900 text-xs">Max Price</h4>
+          <span class="font-mono font-bold text-gray-900">${{ formatPrice(priceRange) }}</span>
+        </div>
         <input
-          v-model="inStockOnlyFilter"
-          type="checkbox"
-          class="w-4 h-4 rounded-md text-indigo-600 focus:ring-indigo-500 accent-indigo-600 cursor-pointer"
+          type="range"
+          min="50"
+          max="3000"
+          step="50"
+          :value="priceRange"
+          @input="emit('update:priceRange', Number($event.target.value))"
+          class="w-full accent-blue-600 cursor-pointer"
         />
-      </label>
+        <div class="flex justify-between text-[10px] text-gray-400 font-mono">
+          <span>$50</span>
+          <span>$1,500</span>
+          <span>$3,000</span>
+        </div>
+      </div>
 
-      <label class="flex items-center justify-between cursor-pointer group">
-        <span class="text-xs font-medium text-slate-700 group-hover:text-slate-900">On Sale / Discounted</span>
-        <input
-          v-model="onSaleOnlyFilter"
-          type="checkbox"
-          class="w-4 h-4 rounded-md text-indigo-600 focus:ring-indigo-500 accent-indigo-600 cursor-pointer"
-        />
-      </label>
-    </div>
+      <!-- Rating Filter -->
+      <div class="space-y-2 pt-4 border-t border-gray-100">
+        <h4 class="font-bold text-gray-900 text-xs">Customer Rating</h4>
+        <div class="space-y-1">
+          <label
+            v-for="r in [4.5, 4.0, 3.5]"
+            :key="r"
+            class="flex items-center gap-2 cursor-pointer p-1 rounded hover:bg-gray-50"
+          >
+            <input
+              type="radio"
+              name="rating"
+              :checked="minRating === r"
+              @change="emit('update:minRating', r)"
+              class="text-blue-600 accent-blue-600"
+            />
+            <span class="text-amber-500 font-bold flex items-center gap-1">
+              <AppIcon name="star" size="xs" />
+              <span>{{ r }} & up</span>
+            </span>
+          </label>
 
-    <!-- Mobile Drawer Action -->
-    <div v-if="isMobileDrawer" class="pt-4 border-t border-slate-200">
-      <button
-        type="button"
-        @click="emit('close')"
-        class="w-full py-3 rounded-xl bg-indigo-600 text-white font-bold text-xs shadow-md"
-      >
-        View Results
-      </button>
-    </div>
+          <label class="flex items-center gap-2 cursor-pointer p-1 rounded hover:bg-gray-50">
+            <input
+              type="radio"
+              name="rating"
+              :checked="minRating === 0"
+              @change="emit('update:minRating', 0)"
+              class="text-blue-600 accent-blue-600"
+            />
+            <span class="text-gray-600">All Ratings</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Availability Toggles -->
+      <div class="space-y-2 pt-4 border-t border-gray-100">
+        <h4 class="font-bold text-gray-900 text-xs">Availability & Offers</h4>
+        <div class="space-y-2">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              :checked="onlyInStock"
+              @change="emit('update:onlyInStock', $event.target.checked)"
+              class="rounded text-blue-600 accent-blue-600 cursor-pointer"
+            />
+            <span class="text-gray-700">In Stock Only</span>
+          </label>
+
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              :checked="onlyOnSale"
+              @change="emit('update:onlyOnSale', $event.target.checked)"
+              class="rounded text-blue-600 accent-blue-600 cursor-pointer"
+            />
+            <span class="text-gray-700">On Sale / Discounted</span>
+          </label>
+        </div>
+      </div>
+    </aside>
   </div>
 </template>

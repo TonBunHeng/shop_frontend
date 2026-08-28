@@ -101,13 +101,13 @@ const nextStep = () => {
   if (currentStep.value === 1 && !validateStep1()) return
   if (currentStep.value === 2 && !validateStep2()) return
   currentStep.value++
-  window.scrollTo({ top: 100, behavior: 'smooth' })
+  window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
 const prevStep = () => {
   if (currentStep.value > 1) {
     currentStep.value--
-    window.scrollTo({ top: 100, behavior: 'smooth' })
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 }
 
@@ -148,7 +148,7 @@ const handlePlaceOrder = () => {
     if (order) {
       props.navigate('order-success')
     }
-  }, 600)
+  }, 400)
 }
 
 const breadcrumbs = [
@@ -159,152 +159,149 @@ const breadcrumbs = [
 </script>
 
 <template>
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
     <!-- Breadcrumbs -->
     <Breadcrumbs :items="breadcrumbs" :navigate="navigate" />
 
     <!-- Checkout Header -->
-    <div class="flex items-center justify-between pb-4 border-b border-slate-200">
+    <div class="flex items-center justify-between pb-4 border-b border-gray-200">
       <div>
-        <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Secure Checkout</h1>
-        <p class="text-xs sm:text-sm text-slate-500 mt-0.5">256-bit encrypted bank grade checkout</p>
+        <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Checkout</h1>
+        <p class="text-xs text-gray-500 mt-0.5">Please complete the steps below to place your order</p>
       </div>
 
       <button
         type="button"
         @click="navigate('cart')"
-        class="text-xs font-bold text-slate-600 hover:text-indigo-600 cursor-pointer"
+        class="text-xs font-semibold text-gray-600 hover:text-blue-600 cursor-pointer"
       >
         &larr; Return to Cart
       </button>
     </div>
 
     <!-- Stepper Indicator -->
-    <div class="grid grid-cols-4 gap-2 text-center text-xs font-bold">
+    <div class="grid grid-cols-4 gap-2 text-center text-xs font-semibold">
       <div
-        class="p-3 rounded-2xl border transition-all"
-        :class="currentStep >= 1 ? 'bg-indigo-50 border-indigo-200 text-indigo-700 font-extrabold' : 'bg-white border-slate-200 text-slate-400'"
+        class="p-2.5 rounded border transition-colors"
+        :class="currentStep >= 1 ? 'bg-blue-50 border-blue-200 text-blue-700 font-bold' : 'bg-white border-gray-200 text-gray-400'"
       >
-        <span class="block text-[10px] uppercase tracking-wider opacity-70">Step 1</span>
+        <span class="block text-[10px] uppercase tracking-wider opacity-75">Step 1</span>
         <span>Customer</span>
       </div>
 
       <div
-        class="p-3 rounded-2xl border transition-all"
-        :class="currentStep >= 2 ? 'bg-indigo-50 border-indigo-200 text-indigo-700 font-extrabold' : 'bg-white border-slate-200 text-slate-400'"
+        class="p-2.5 rounded border transition-colors"
+        :class="currentStep >= 2 ? 'bg-blue-50 border-blue-200 text-blue-700 font-bold' : 'bg-white border-gray-200 text-gray-400'"
       >
-        <span class="block text-[10px] uppercase tracking-wider opacity-70">Step 2</span>
+        <span class="block text-[10px] uppercase tracking-wider opacity-75">Step 2</span>
         <span>Shipping</span>
       </div>
 
       <div
-        class="p-3 rounded-2xl border transition-all"
-        :class="currentStep >= 3 ? 'bg-indigo-50 border-indigo-200 text-indigo-700 font-extrabold' : 'bg-white border-slate-200 text-slate-400'"
+        class="p-2.5 rounded border transition-colors"
+        :class="currentStep >= 3 ? 'bg-blue-50 border-blue-200 text-blue-700 font-bold' : 'bg-white border-gray-200 text-gray-400'"
       >
-        <span class="block text-[10px] uppercase tracking-wider opacity-70">Step 3</span>
+        <span class="block text-[10px] uppercase tracking-wider opacity-75">Step 3</span>
         <span>Payment</span>
       </div>
 
       <div
-        class="p-3 rounded-2xl border transition-all"
-        :class="currentStep >= 4 ? 'bg-indigo-50 border-indigo-200 text-indigo-700 font-extrabold' : 'bg-white border-slate-200 text-slate-400'"
+        class="p-2.5 rounded border transition-colors"
+        :class="currentStep >= 4 ? 'bg-blue-50 border-blue-200 text-blue-700 font-bold' : 'bg-white border-gray-200 text-gray-400'"
       >
-        <span class="block text-[10px] uppercase tracking-wider opacity-70">Step 4</span>
+        <span class="block text-[10px] uppercase tracking-wider opacity-75">Step 4</span>
         <span>Review</span>
       </div>
     </div>
 
     <!-- Main Checkout Grid (8 cols form + 4 cols summary) -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
       <!-- Steps Form (8 cols) -->
       <div class="lg:col-span-8 space-y-6">
         <!-- STEP 1: Customer Information -->
-        <div v-if="currentStep === 1" class="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-xs space-y-6">
-          <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-            <h2 class="text-lg font-bold text-slate-900">1. Customer Information</h2>
-            <span class="text-xs text-slate-400">Step 1 of 4</span>
+        <div v-if="currentStep === 1" class="bg-white rounded-lg border border-gray-200 p-6 space-y-4">
+          <div class="pb-3 border-b border-gray-200 flex items-center justify-between">
+            <h2 class="text-sm font-bold text-gray-900">1. Customer Information</h2>
+            <span class="text-xs text-gray-400">Step 1 of 4</span>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
             <div>
-              <label class="block font-bold text-slate-900 mb-1">First Name *</label>
+              <label class="block font-semibold text-gray-700 mb-1">First Name *</label>
               <input
                 v-model="customerForm.firstName"
                 type="text"
                 required
-                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:bg-white focus:outline-hidden focus:border-indigo-500"
+                class="w-full bg-gray-50 border border-gray-300 rounded px-3 py-2 text-xs text-gray-900 focus:bg-white focus:outline-hidden focus:border-blue-600"
               />
             </div>
 
             <div>
-              <label class="block font-bold text-slate-900 mb-1">Last Name *</label>
+              <label class="block font-semibold text-gray-700 mb-1">Last Name *</label>
               <input
                 v-model="customerForm.lastName"
                 type="text"
                 required
-                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:bg-white focus:outline-hidden focus:border-indigo-500"
+                class="w-full bg-gray-50 border border-gray-300 rounded px-3 py-2 text-xs text-gray-900 focus:bg-white focus:outline-hidden focus:border-blue-600"
               />
             </div>
 
             <div>
-              <label class="block font-bold text-slate-900 mb-1">Email Address *</label>
+              <label class="block font-semibold text-gray-700 mb-1">Email Address *</label>
               <input
                 v-model="customerForm.email"
                 type="email"
                 required
-                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:bg-white focus:outline-hidden focus:border-indigo-500"
+                class="w-full bg-gray-50 border border-gray-300 rounded px-3 py-2 text-xs text-gray-900 focus:bg-white focus:outline-hidden focus:border-blue-600"
               />
             </div>
 
             <div>
-              <label class="block font-bold text-slate-900 mb-1">Phone Number *</label>
+              <label class="block font-semibold text-gray-700 mb-1">Phone Number *</label>
               <input
                 v-model="customerForm.phone"
                 type="tel"
                 required
-                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:bg-white focus:outline-hidden focus:border-indigo-500"
+                class="w-full bg-gray-50 border border-gray-300 rounded px-3 py-2 text-xs text-gray-900 focus:bg-white focus:outline-hidden focus:border-blue-600"
               />
             </div>
           </div>
 
-          <div class="pt-4 border-t border-slate-100 flex justify-end">
+          <div class="pt-4 border-t border-gray-200 flex justify-end">
             <button
               type="button"
               @click="nextStep"
-              class="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md transition-all cursor-pointer flex items-center gap-2"
+              class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs rounded transition-colors cursor-pointer"
             >
-              <span>Continue to Shipping Address</span>
-              <span>&rarr;</span>
+              Continue to Shipping Address &rarr;
             </button>
           </div>
         </div>
 
         <!-- STEP 2: Shipping Address & Method -->
-        <div v-else-if="currentStep === 2" class="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-xs space-y-6">
-          <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-            <h2 class="text-lg font-bold text-slate-900">2. Shipping Address & Delivery Speed</h2>
-            <span class="text-xs text-slate-400">Step 2 of 4</span>
+        <div v-else-if="currentStep === 2" class="bg-white rounded-lg border border-gray-200 p-6 space-y-4">
+          <div class="pb-3 border-b border-gray-200 flex items-center justify-between">
+            <h2 class="text-sm font-bold text-gray-900">2. Shipping Address & Delivery Option</h2>
+            <span class="text-xs text-gray-400">Step 2 of 4</span>
           </div>
 
           <!-- Saved Addresses Selector -->
           <div v-if="addresses.length > 0" class="space-y-2">
-            <label class="text-xs font-bold text-slate-700">Choose from Saved Addresses:</label>
+            <label class="text-xs font-semibold text-gray-700">Choose from Saved Addresses:</label>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div
                 v-for="addr in addresses"
                 :key="addr.id"
                 @click="applySavedAddress(addr)"
-                class="p-3.5 rounded-2xl border text-xs cursor-pointer transition-all flex flex-col justify-between"
-                :class="selectedAddressId === addr.id ? 'border-indigo-600 bg-indigo-50/50 shadow-xs' : 'border-slate-200 hover:bg-slate-50'"
+                class="p-3 rounded border text-xs cursor-pointer transition-colors"
+                :class="selectedAddressId === addr.id ? 'border-blue-600 bg-blue-50/50' : 'border-gray-200 hover:bg-gray-50'"
               >
-                <div>
-                  <div class="flex items-center justify-between font-bold text-slate-900 mb-1">
-                    <span>{{ addr.title || addr.type }}</span>
-                    <span v-if="selectedAddressId === addr.id" class="text-indigo-600 font-bold">✓ Selected</span>
-                  </div>
-                  <p class="text-slate-600">{{ addr.fullName }}</p>
-                  <p class="text-slate-500 text-[11px] mt-0.5">{{ addr.address }}, {{ addr.city }}, {{ addr.state }} {{ addr.zip }}</p>
+                <div class="flex items-center justify-between font-bold text-gray-900 mb-1">
+                  <span>{{ addr.title || addr.type }}</span>
+                  <span v-if="selectedAddressId === addr.id" class="text-blue-600 font-semibold">✓ Selected</span>
                 </div>
+                <p class="text-gray-700">{{ addr.fullName }}</p>
+                <p class="text-gray-500 text-[11px] mt-0.5">{{ addr.address }}, {{ addr.city }}, {{ addr.state }} {{ addr.zip }}</p>
               </div>
             </div>
           </div>
@@ -312,295 +309,298 @@ const breadcrumbs = [
           <!-- Address Form Fields -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs pt-2">
             <div class="sm:col-span-2">
-              <label class="block font-bold text-slate-900 mb-1">Street Address *</label>
+              <label class="block font-semibold text-gray-700 mb-1">Street Address *</label>
               <input
                 v-model="customerForm.address"
                 type="text"
                 required
-                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:bg-white focus:outline-hidden focus:border-indigo-500"
+                class="w-full bg-gray-50 border border-gray-300 rounded px-3 py-2 text-xs text-gray-900 focus:bg-white focus:outline-hidden focus:border-blue-600"
               />
             </div>
 
             <div>
-              <label class="block font-bold text-slate-900 mb-1">City *</label>
+              <label class="block font-semibold text-gray-700 mb-1">City *</label>
               <input
                 v-model="customerForm.city"
                 type="text"
                 required
-                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:bg-white focus:outline-hidden focus:border-indigo-500"
+                class="w-full bg-gray-50 border border-gray-300 rounded px-3 py-2 text-xs text-gray-900 focus:bg-white focus:outline-hidden focus:border-blue-600"
               />
             </div>
 
             <div>
-              <label class="block font-bold text-slate-900 mb-1">State / Province</label>
+              <label class="block font-semibold text-gray-700 mb-1">State / Province</label>
               <input
                 v-model="customerForm.state"
                 type="text"
-                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:bg-white focus:outline-hidden focus:border-indigo-500"
+                class="w-full bg-gray-50 border border-gray-300 rounded px-3 py-2 text-xs text-gray-900 focus:bg-white focus:outline-hidden focus:border-blue-600"
               />
             </div>
 
             <div>
-              <label class="block font-bold text-slate-900 mb-1">Postal / ZIP Code *</label>
+              <label class="block font-semibold text-gray-700 mb-1">Postal / ZIP Code *</label>
               <input
                 v-model="customerForm.zip"
                 type="text"
                 required
-                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:bg-white focus:outline-hidden focus:border-indigo-500"
+                class="w-full bg-gray-50 border border-gray-300 rounded px-3 py-2 text-xs text-gray-900 focus:bg-white focus:outline-hidden focus:border-blue-600"
               />
             </div>
 
             <div>
-              <label class="block font-bold text-slate-900 mb-1">Country</label>
+              <label class="block font-semibold text-gray-700 mb-1">Country</label>
               <input
                 v-model="customerForm.country"
                 type="text"
-                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:bg-white focus:outline-hidden focus:border-indigo-500"
+                class="w-full bg-gray-50 border border-gray-300 rounded px-3 py-2 text-xs text-gray-900 focus:bg-white focus:outline-hidden focus:border-blue-600"
               />
             </div>
           </div>
 
           <!-- Shipping Speed Options -->
-          <div class="space-y-3 pt-4 border-t border-slate-100">
-            <label class="text-xs font-bold text-slate-900 uppercase tracking-wider block">Select Delivery Tier</label>
-            <div class="space-y-2 text-xs">
-              <label
-                class="flex items-center justify-between p-3.5 rounded-2xl border cursor-pointer transition-all"
-                :class="shippingMethod === 'standard' ? 'border-indigo-600 bg-indigo-50/50' : 'border-slate-200 hover:bg-slate-50'"
-              >
-                <div class="flex items-center gap-3">
-                  <input type="radio" v-model="shippingMethod" value="standard" class="accent-indigo-600" />
-                  <div>
-                    <p class="font-bold text-slate-900">Standard Express Shipping (3–5 Business Days)</p>
-                    <p class="text-[11px] text-slate-500">Tracked FedEx / USPS ground</p>
-                  </div>
+          <div class="space-y-2 pt-4 border-t border-gray-200 text-xs">
+            <label class="font-bold text-gray-900 block">Select Delivery Option:</label>
+            
+            <label
+              class="flex items-center justify-between p-3 rounded border cursor-pointer transition-colors"
+              :class="shippingMethod === 'standard' ? 'border-blue-600 bg-blue-50/50' : 'border-gray-200 hover:bg-gray-50'"
+            >
+              <div class="flex items-center gap-2.5">
+                <input type="radio" v-model="shippingMethod" value="standard" class="accent-blue-600" />
+                <div>
+                  <p class="font-bold text-gray-900">Standard Shipping (3–5 Business Days)</p>
+                  <p class="text-[11px] text-gray-500">Tracked ground delivery</p>
                 </div>
-                <span class="font-bold font-mono text-slate-900">{{ cartSubtotal >= 100 ? 'FREE' : '$15.00' }}</span>
-              </label>
+              </div>
+              <span class="font-mono font-bold text-gray-900">{{ cartSubtotal >= 100 ? 'FREE' : '$15.00' }}</span>
+            </label>
 
-              <label
-                class="flex items-center justify-between p-3.5 rounded-2xl border cursor-pointer transition-all"
-                :class="shippingMethod === 'express' ? 'border-indigo-600 bg-indigo-50/50' : 'border-slate-200 hover:bg-slate-50'"
-              >
-                <div class="flex items-center gap-3">
-                  <input type="radio" v-model="shippingMethod" value="express" class="accent-indigo-600" />
-                  <div>
-                    <p class="font-bold text-slate-900">Fast 2-Day Air Shipping (1–2 Business Days)</p>
-                    <p class="text-[11px] text-slate-500">Guaranteed priority air delivery</p>
-                  </div>
+            <label
+              class="flex items-center justify-between p-3 rounded border cursor-pointer transition-colors"
+              :class="shippingMethod === 'express' ? 'border-blue-600 bg-blue-50/50' : 'border-gray-200 hover:bg-gray-50'"
+            >
+              <div class="flex items-center gap-2.5">
+                <input type="radio" v-model="shippingMethod" value="express" class="accent-blue-600" />
+                <div>
+                  <p class="font-bold text-gray-900">Fast 2-Day Air Shipping (1–2 Business Days)</p>
+                  <p class="text-[11px] text-gray-500">Priority air delivery</p>
                 </div>
-                <span class="font-bold font-mono text-slate-900">$20.00</span>
-              </label>
+              </div>
+              <span class="font-mono font-bold text-gray-900">$20.00</span>
+            </label>
 
-              <label
-                class="flex items-center justify-between p-3.5 rounded-2xl border cursor-pointer transition-all"
-                :class="shippingMethod === 'overnight' ? 'border-indigo-600 bg-indigo-50/50' : 'border-slate-200 hover:bg-slate-50'"
-              >
-                <div class="flex items-center gap-3">
-                  <input type="radio" v-model="shippingMethod" value="overnight" class="accent-indigo-600" />
-                  <div>
-                    <p class="font-bold text-slate-900">Next-Day Morning Priority Overnight</p>
-                    <p class="text-[11px] text-slate-500">Before 10:30 AM arrival with direct signature</p>
-                  </div>
+            <label
+              class="flex items-center justify-between p-3 rounded border cursor-pointer transition-colors"
+              :class="shippingMethod === 'overnight' ? 'border-blue-600 bg-blue-50/50' : 'border-gray-200 hover:bg-gray-50'"
+            >
+              <div class="flex items-center gap-2.5">
+                <input type="radio" v-model="shippingMethod" value="overnight" class="accent-blue-600" />
+                <div>
+                  <p class="font-bold text-gray-900">Priority Overnight</p>
+                  <p class="text-[11px] text-gray-500">Next morning arrival</p>
                 </div>
-                <span class="font-bold font-mono text-slate-900">$35.00</span>
-              </label>
-            </div>
+              </div>
+              <span class="font-mono font-bold text-gray-900">$35.00</span>
+            </label>
           </div>
 
-          <div class="pt-4 border-t border-slate-100 flex justify-between">
+          <div class="pt-4 border-t border-gray-200 flex justify-between">
             <button
               type="button"
               @click="prevStep"
-              class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 font-bold text-xs hover:bg-slate-50 cursor-pointer"
+              class="px-4 py-2 border border-gray-300 rounded text-gray-700 font-medium text-xs hover:bg-gray-50 cursor-pointer"
             >
               &larr; Back
             </button>
             <button
               type="button"
               @click="nextStep"
-              class="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md transition-all cursor-pointer flex items-center gap-2"
+              class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs rounded transition-colors cursor-pointer"
             >
-              <span>Continue to Payment</span>
-              <span>&rarr;</span>
+              Continue to Payment &rarr;
             </button>
           </div>
         </div>
 
         <!-- STEP 3: Payment Method -->
-        <div v-else-if="currentStep === 3" class="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-xs space-y-6">
-          <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-            <h2 class="text-lg font-bold text-slate-900">3. Payment Information</h2>
-            <span class="text-xs text-slate-400">Step 3 of 4</span>
+        <div v-else-if="currentStep === 3" class="bg-white rounded-lg border border-gray-200 p-6 space-y-4">
+          <div class="pb-3 border-b border-gray-200 flex items-center justify-between">
+            <h2 class="text-sm font-bold text-gray-900">3. Payment Information</h2>
+            <span class="text-xs text-gray-400">Step 3 of 4</span>
           </div>
 
           <!-- Payment Options Grid -->
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
             <button
               type="button"
               @click="paymentMethod = 'card'"
-              class="p-3.5 rounded-2xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-1"
-              :class="paymentMethod === 'card' ? 'border-indigo-600 bg-indigo-50/50 text-indigo-700 font-bold' : 'border-slate-200 text-slate-700 hover:bg-slate-50'"
+              class="p-3 rounded border text-center transition-colors cursor-pointer flex flex-col items-center justify-center gap-1.5"
+              :class="paymentMethod === 'card' ? 'border-blue-600 bg-blue-50/50 text-blue-700 font-bold' : 'border-gray-200 text-gray-700 hover:bg-gray-50'"
             >
-              <span class="text-lg">💳</span>
-              <span class="text-xs">Credit Card</span>
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-6-11.25h16.5a2.25 2.25 0 012.25 2.25v10.5a2.25 2.25 0 01-2.25 2.25H3.75A2.25 2.25 0 011.5 19.5V7.5A2.25 2.25 0 013.75 5.25z" />
+              </svg>
+              <span>Credit Card</span>
             </button>
 
             <button
               type="button"
               @click="paymentMethod = 'paypal'"
-              class="p-3.5 rounded-2xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-1"
-              :class="paymentMethod === 'paypal' ? 'border-indigo-600 bg-indigo-50/50 text-indigo-700 font-bold' : 'border-slate-200 text-slate-700 hover:bg-slate-50'"
+              class="p-3 rounded border text-center transition-colors cursor-pointer flex flex-col items-center justify-center gap-1.5"
+              :class="paymentMethod === 'paypal' ? 'border-blue-600 bg-blue-50/50 text-blue-700 font-bold' : 'border-gray-200 text-gray-700 hover:bg-gray-50'"
             >
-              <span class="text-lg">🅿️</span>
-              <span class="text-xs">PayPal</span>
+              <span class="w-5 h-5 rounded-full bg-blue-100 text-blue-800 font-black text-xs flex items-center justify-center font-mono">P</span>
+              <span>PayPal</span>
             </button>
 
             <button
               type="button"
               @click="paymentMethod = 'cod'"
-              class="p-3.5 rounded-2xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-1"
-              :class="paymentMethod === 'cod' ? 'border-indigo-600 bg-indigo-50/50 text-indigo-700 font-bold' : 'border-slate-200 text-slate-700 hover:bg-slate-50'"
+              class="p-3 rounded border text-center transition-colors cursor-pointer flex flex-col items-center justify-center gap-1.5"
+              :class="paymentMethod === 'cod' ? 'border-blue-600 bg-blue-50/50 text-blue-700 font-bold' : 'border-gray-200 text-gray-700 hover:bg-gray-50'"
             >
-              <span class="text-lg">💵</span>
-              <span class="text-xs">Cash on Deliv</span>
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>Cash on Delivery</span>
             </button>
 
             <button
               type="button"
               @click="paymentMethod = 'bank'"
-              class="p-3.5 rounded-2xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-1"
-              :class="paymentMethod === 'bank' ? 'border-indigo-600 bg-indigo-50/50 text-indigo-700 font-bold' : 'border-slate-200 text-slate-700 hover:bg-slate-50'"
+              class="p-3 rounded border text-center transition-colors cursor-pointer flex flex-col items-center justify-center gap-1.5"
+              :class="paymentMethod === 'bank' ? 'border-blue-600 bg-blue-50/50 text-blue-700 font-bold' : 'border-gray-200 text-gray-700 hover:bg-gray-50'"
             >
-              <span class="text-lg">🏦</span>
-              <span class="text-xs">Wire Transfer</span>
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.5m-15 10.5V10.5M3 21h18M3 9h18" />
+              </svg>
+              <span>Bank Transfer</span>
             </button>
           </div>
 
-          <!-- Credit Card Input Simulation -->
-          <div v-if="paymentMethod === 'card'" class="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-4 text-xs">
+          <!-- Credit Card Form -->
+          <div v-if="paymentMethod === 'card'" class="p-4 rounded bg-gray-50 border border-gray-200 space-y-3 text-xs">
             <div>
-              <label class="block font-bold text-slate-900 mb-1">Card Number</label>
+              <label class="block font-semibold text-gray-700 mb-1">Card Number</label>
               <input
                 v-model="cardForm.number"
                 type="text"
                 placeholder="4242 •••• •••• 4242"
-                class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 font-mono focus:outline-hidden focus:border-indigo-500"
+                class="w-full bg-white border border-gray-300 rounded px-3 py-2 text-xs text-gray-900 font-mono focus:outline-hidden focus:border-blue-600"
               />
             </div>
 
             <div class="grid grid-cols-2 gap-3">
               <div>
-                <label class="block font-bold text-slate-900 mb-1">Expiration Date</label>
+                <label class="block font-semibold text-gray-700 mb-1">Expiration Date</label>
                 <input
                   v-model="cardForm.expiry"
                   type="text"
                   placeholder="MM/YY"
-                  class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 font-mono focus:outline-hidden focus:border-indigo-500"
+                  class="w-full bg-white border border-gray-300 rounded px-3 py-2 text-xs text-gray-900 font-mono focus:outline-hidden focus:border-blue-600"
                 />
               </div>
               <div>
-                <label class="block font-bold text-slate-900 mb-1">Security Code (CVV)</label>
+                <label class="block font-semibold text-gray-700 mb-1">Security Code (CVV)</label>
                 <input
                   v-model="cardForm.cvv"
                   type="password"
                   placeholder="123"
-                  class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 font-mono focus:outline-hidden focus:border-indigo-500"
+                  class="w-full bg-white border border-gray-300 rounded px-3 py-2 text-xs text-gray-900 font-mono focus:outline-hidden focus:border-blue-600"
                 />
               </div>
             </div>
 
             <div>
-              <label class="block font-bold text-slate-900 mb-1">Cardholder Name</label>
+              <label class="block font-semibold text-gray-700 mb-1">Cardholder Name</label>
               <input
                 v-model="cardForm.holder"
                 type="text"
-                class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-hidden focus:border-indigo-500"
+                class="w-full bg-white border border-gray-300 rounded px-3 py-2 text-xs text-gray-900 focus:outline-hidden focus:border-blue-600"
               />
             </div>
           </div>
 
-          <div v-else-if="paymentMethod === 'paypal'" class="p-6 rounded-2xl bg-slate-50 border border-slate-200 text-center text-xs text-slate-600 space-y-2">
-            <p class="font-bold text-slate-900">PayPal Express Checkout Simulation</p>
-            <p>You will be redirected to PayPal's secure gateway to finalize authentication.</p>
+          <div v-else-if="paymentMethod === 'paypal'" class="p-4 rounded bg-gray-50 border border-gray-200 text-center text-xs text-gray-600 space-y-1">
+            <p class="font-bold text-gray-900">PayPal Gateway</p>
+            <p>You will complete authentication on the PayPal portal upon clicking Next.</p>
           </div>
 
-          <div v-else class="p-6 rounded-2xl bg-slate-50 border border-slate-200 text-center text-xs text-slate-600 space-y-2">
-            <p class="font-bold text-slate-900">Offline Payment Selection</p>
-            <p>Payment will be collected upon parcel handover by courier.</p>
+          <div v-else class="p-4 rounded bg-gray-50 border border-gray-200 text-center text-xs text-gray-600 space-y-1">
+            <p class="font-bold text-gray-900">Offline Payment Selected</p>
+            <p>Payment will be processed upon handover or bank receipt.</p>
           </div>
 
-          <div class="pt-4 border-t border-slate-100 flex justify-between">
+          <div class="pt-4 border-t border-gray-200 flex justify-between">
             <button
               type="button"
               @click="prevStep"
-              class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 font-bold text-xs hover:bg-slate-50 cursor-pointer"
+              class="px-4 py-2 border border-gray-300 rounded text-gray-700 font-medium text-xs hover:bg-gray-50 cursor-pointer"
             >
               &larr; Back
             </button>
             <button
               type="button"
               @click="nextStep"
-              class="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md transition-all cursor-pointer flex items-center gap-2"
+              class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs rounded transition-colors cursor-pointer"
             >
-              <span>Review Order Summary</span>
-              <span>&rarr;</span>
+              Review Order Summary &rarr;
             </button>
           </div>
         </div>
 
         <!-- STEP 4: Review & Place Order -->
-        <div v-else class="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-xs space-y-6">
-          <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-            <h2 class="text-lg font-bold text-slate-900">4. Review & Place Order</h2>
-            <span class="text-xs text-slate-400">Step 4 of 4</span>
+        <div v-else class="bg-white rounded-lg border border-gray-200 p-6 space-y-4">
+          <div class="pb-3 border-b border-gray-200 flex items-center justify-between">
+            <h2 class="text-sm font-bold text-gray-900">4. Review & Place Order</h2>
+            <span class="text-xs text-gray-400">Step 4 of 4</span>
           </div>
 
-          <!-- Review Summary Box -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs p-4 bg-slate-50 rounded-2xl border border-slate-200">
+          <!-- Summary Info Box -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs p-4 bg-gray-50 border border-gray-200 rounded">
             <div>
-              <h4 class="font-bold text-slate-400 uppercase tracking-wider mb-1">Customer</h4>
-              <p class="font-bold text-slate-900">{{ customerForm.firstName }} {{ customerForm.lastName }}</p>
-              <p class="text-slate-600">{{ customerForm.email }}</p>
-              <p class="text-slate-600">{{ customerForm.phone }}</p>
+              <h4 class="font-bold text-gray-500 uppercase tracking-wider text-[10px] mb-1">Customer</h4>
+              <p class="font-bold text-gray-900">{{ customerForm.firstName }} {{ customerForm.lastName }}</p>
+              <p class="text-gray-600">{{ customerForm.email }}</p>
+              <p class="text-gray-600">{{ customerForm.phone }}</p>
             </div>
 
             <div>
-              <h4 class="font-bold text-slate-400 uppercase tracking-wider mb-1">Shipping To</h4>
-              <p class="text-slate-900 font-medium">{{ customerForm.address }}</p>
-              <p class="text-slate-900 font-medium">{{ customerForm.city }}, {{ customerForm.state }} {{ customerForm.zip }}</p>
-              <p class="text-indigo-600 font-bold mt-1">Tier: {{ shippingMethod.toUpperCase() }}</p>
+              <h4 class="font-bold text-gray-500 uppercase tracking-wider text-[10px] mb-1">Shipping To</h4>
+              <p class="text-gray-900">{{ customerForm.address }}</p>
+              <p class="text-gray-900">{{ customerForm.city }}, {{ customerForm.state }} {{ customerForm.zip }}</p>
+              <p class="text-blue-600 font-semibold mt-1">Tier: {{ shippingMethod.toUpperCase() }}</p>
             </div>
           </div>
 
-          <!-- Items in order -->
-          <div class="space-y-3">
-            <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Order Items ({{ cart.length }})</h3>
-            <div class="divide-y divide-slate-100 max-h-56 overflow-y-auto">
+          <!-- Items list -->
+          <div class="space-y-2">
+            <h3 class="text-xs font-bold text-gray-900 uppercase tracking-wider">Ordered Items ({{ cart.length }})</h3>
+            <div class="divide-y divide-gray-100 max-h-48 overflow-y-auto">
               <div
                 v-for="item in cart"
                 :key="item.cartItemId || item.id"
-                class="py-2.5 flex items-center justify-between gap-3 text-xs"
+                class="py-2 flex items-center justify-between gap-3 text-xs"
               >
-                <div class="flex items-center gap-3 min-w-0">
-                  <img :src="item.image" :alt="item.name" class="w-10 h-10 rounded-lg object-cover shrink-0" />
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <img :src="item.image" :alt="item.name" class="w-8 h-8 rounded object-cover shrink-0" />
                   <div class="truncate">
-                    <span class="font-bold text-slate-900 truncate block">{{ item.name }}</span>
-                    <span class="text-[11px] text-slate-500">Qty: {{ item.quantity }}</span>
+                    <span class="font-medium text-gray-900 truncate block">{{ item.name }}</span>
+                    <span class="text-[11px] text-gray-500">Qty: {{ item.quantity }}</span>
                   </div>
                 </div>
-                <span class="font-mono font-bold text-slate-900 shrink-0">
+                <span class="font-mono font-bold text-gray-900 shrink-0">
                   ${{ formatPrice(item.price * item.quantity) }}
                 </span>
               </div>
             </div>
           </div>
 
-          <div class="pt-4 border-t border-slate-100 flex justify-between items-center">
+          <div class="pt-4 border-t border-gray-200 flex justify-between items-center">
             <button
               type="button"
               @click="prevStep"
-              class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 font-bold text-xs hover:bg-slate-50 cursor-pointer"
+              class="px-4 py-2 border border-gray-300 rounded text-gray-700 font-medium text-xs hover:bg-gray-50 cursor-pointer"
             >
               &larr; Back
             </button>
@@ -609,7 +609,7 @@ const breadcrumbs = [
               type="button"
               @click="handlePlaceOrder"
               :disabled="isSubmitting"
-              class="px-8 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 disabled:opacity-50 text-white font-bold text-sm shadow-xl shadow-indigo-600/25 transition-all cursor-pointer flex items-center gap-2"
+              class="px-6 py-3 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 disabled:opacity-50 text-white font-medium text-xs rounded transition-colors cursor-pointer"
             >
               <span v-if="isSubmitting">Processing Order...</span>
               <span v-else>Place Order — ${{ formatPrice(grandTotal) }}</span>
@@ -620,41 +620,41 @@ const breadcrumbs = [
 
       <!-- Right: Summary Sidebar (4 cols) -->
       <div class="lg:col-span-4 sticky top-24">
-        <div class="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-xs space-y-4 text-xs">
-          <h3 class="text-sm font-bold text-slate-900">Summary Breakdown</h3>
+        <div class="bg-white rounded-lg border border-gray-200 p-5 space-y-3 text-xs">
+          <h3 class="text-sm font-bold text-gray-900 pb-2 border-b border-gray-100">Summary</h3>
 
-          <div class="space-y-2 text-slate-600 pt-2 border-t border-slate-100">
+          <div class="space-y-1.5 text-gray-600">
             <div class="flex justify-between">
               <span>Subtotal</span>
-              <span class="font-bold text-slate-900 font-mono">${{ formatPrice(cartSubtotal) }}</span>
+              <span class="font-mono font-medium text-gray-900">${{ formatPrice(cartSubtotal) }}</span>
             </div>
 
-            <div v-if="cartDiscount > 0" class="flex justify-between text-emerald-600 font-bold">
-              <span>Coupon Discount</span>
+            <div v-if="cartDiscount > 0" class="flex justify-between text-emerald-600">
+              <span>Discount</span>
               <span class="font-mono">-${{ formatPrice(cartDiscount) }}</span>
             </div>
 
             <div class="flex justify-between">
-              <span>Shipping Fee</span>
+              <span>Shipping</span>
               <span class="font-mono font-medium">
                 {{ shippingFee === 0 ? 'FREE' : `$${formatPrice(shippingFee)}` }}
               </span>
             </div>
 
             <div class="flex justify-between">
-              <span>Sales Tax (5%)</span>
+              <span>Tax (5%)</span>
               <span class="font-mono font-medium">${{ formatPrice(taxAmount) }}</span>
             </div>
 
-            <div class="flex justify-between text-base font-black text-slate-900 pt-3 border-t border-slate-200">
-              <span>Total to Pay</span>
-              <span class="text-indigo-600 font-mono">${{ formatPrice(grandTotal) }}</span>
+            <div class="flex justify-between text-sm font-bold text-gray-900 pt-2 border-t border-gray-200">
+              <span>Total</span>
+              <span class="text-blue-600 font-mono">${{ formatPrice(grandTotal) }}</span>
             </div>
           </div>
 
-          <div class="p-3 rounded-xl bg-slate-50 border border-slate-100 text-[11px] text-slate-500 space-y-1">
-            <p>✓ All payments encrypted with TLS 1.3</p>
-            <p>✓ 30-Day unconditional money-back guarantee</p>
+          <div class="p-2.5 rounded bg-gray-50 border border-gray-100 text-[11px] text-gray-500 space-y-0.5">
+            <p>✓ 256-bit SSL encrypted checkout</p>
+            <p>✓ 30-day money-back guarantee</p>
           </div>
         </div>
       </div>

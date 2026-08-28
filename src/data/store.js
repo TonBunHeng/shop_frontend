@@ -822,7 +822,7 @@ const defaultNotifications = [
   {
     id: 'notif_1',
     type: 'order',
-    title: 'Order Shipped 🚚',
+    title: 'Order Shipped',
     message: 'Your order TN-2026-8F4K92 is currently in transit with FedEx.',
     time: '2 hours ago',
     read: false,
@@ -831,7 +831,7 @@ const defaultNotifications = [
   {
     id: 'notif_2',
     type: 'promo',
-    title: 'Flash Sale Alert 🔥',
+    title: 'Flash Sale Alert',
     message: 'Up to 20% off Apple MacBooks and LG Curved Monitors for the next 24 hours!',
     time: '5 hours ago',
     read: false,
@@ -840,7 +840,7 @@ const defaultNotifications = [
   {
     id: 'notif_3',
     type: 'price_drop',
-    title: 'Price Dropped on Wishlist Item 📉',
+    title: 'Price Dropped on Wishlist Item',
     message: 'Sony WH-1000XM5 price dropped from $399 to $349.',
     time: '1 day ago',
     read: true,
@@ -1222,7 +1222,7 @@ export const togglePriceAlert = (productId) => {
     if (product) showToast('Price alert removed', `You will no longer receive alerts for ${product.name}.`, 'info')
   } else {
     priceAlerts.value.push(id)
-    if (product) showToast('Price alert set! 🔔', `We will notify you immediately when ${product.name} drops in price.`, 'success')
+    if (product) showToast('Price alert set!', `We will notify you immediately when ${product.name} drops in price.`, 'success')
   }
 }
 
@@ -1300,7 +1300,7 @@ export const applyCoupon = (code) => {
     code: cleanCode,
     ...coupon,
   }
-  showToast('Coupon Applied! 🎉', `${coupon.description}`, 'success')
+  showToast('Coupon Applied!', `${coupon.description}`, 'success')
   return { success: true }
 }
 
@@ -1369,7 +1369,7 @@ export const createOrder = (shippingInfo, paymentMethod = 'Credit Card', shippin
   notifications.value.unshift({
     id: `notif_${Date.now()}`,
     type: 'order',
-    title: 'Order Confirmed! 📦',
+    title: 'Order Confirmed!',
     message: `Your order ${newOrder.id} has been placed successfully.`,
     time: 'Just now',
     read: false,
@@ -1452,7 +1452,7 @@ export const registerUser = (name, email) => {
     createdAt: new Date().toISOString().split('T')[0],
     rewardPoints: 150, // Welcome reward bonus
   }
-  showToast('Account Created! 🚀', `Welcome to TechNova, ${name}! You received 150 bonus reward points.`, 'success')
+  showToast('Account Created!', `Welcome to TechNova, ${name}! You received 150 bonus reward points.`, 'success')
 }
 
 export const logoutUser = () => {
@@ -1480,3 +1480,41 @@ export const closeCartDrawer = () => {
 export const toggleNotificationPanel = () => {
   notificationPanelOpen.value = !notificationPanelOpen.value
 }
+
+// ==========================================
+// COMPATIBILITY ALIASES & HELPERS
+// ==========================================
+export const isCartDrawerOpen = cartDrawerOpen
+export const isProductInWishlist = isInWishlist
+export const isProductInCompare = isInCompare
+export const isProductInPriceAlert = isInPriceAlert
+export const freeShippingRemaining = amountForFreeShipping
+export const removeSearchHistoryItem = removeSearchQuery
+
+export const quickViewProductId = computed({
+  get: () => quickViewProduct.value?.id || null,
+  set: (val) => {
+    if (!val) {
+      quickViewProduct.value = null
+    } else {
+      quickViewProduct.value = allProducts.find((p) => p.id === Number(val)) || null
+    }
+  },
+})
+
+export const moveToWishlist = (cartItemId) => {
+  const item = cart.value.find((i) => (i.cartItemId || i.id) === cartItemId)
+  if (item) {
+    if (!wishlist.value.has(item.id)) {
+      toggleWishlist(item.id)
+    }
+    removeFromCart(cartItemId)
+  }
+}
+
+export const featuredProducts = computed(() => allProducts.filter((p) => p.isFeatured))
+export const trendingProducts = computed(() => allProducts.filter((p) => p.isTrending))
+export const bestSellerProducts = computed(() => allProducts.filter((p) => p.isBestSeller))
+export const newArrivalProducts = computed(() => allProducts.filter((p) => p.isNew))
+export const recommendedProducts = computed(() => allProducts.slice(0, 4))
+

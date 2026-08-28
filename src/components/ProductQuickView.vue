@@ -2,10 +2,11 @@
 import { computed, ref, watch } from 'vue'
 import {
   addToCart,
-  closeQuickView,
+  allProducts,
   formatPrice,
-  isInWishlist,
-  quickViewProduct,
+  isProductInWishlist,
+  quickViewProductId,
+  showToast,
   toggleWishlist,
 } from '../data/store'
 import PriceDisplay from './PriceDisplay.vue'
@@ -19,209 +20,216 @@ const props = defineProps({
   },
 })
 
+const product = computed(() => {
+  if (!quickViewProductId.value) return null
+  return allProducts.find((p) => p.id === quickViewProductId.value) || null
+})
+
+const quantity = ref(1)
+const selectedImage = ref('')
 const selectedColor = ref('')
 const selectedStorage = ref('')
-const quantity = ref(1)
-const activeImageIndex = ref(0)
 
 watch(
-  quickViewProduct,
-  (product) => {
-    if (product) {
-      selectedColor.value = product.variants?.colors?.[0] || ''
-      selectedStorage.value = product.variants?.storage?.[0] || ''
+  product,
+  (p) => {
+    if (p) {
       quantity.value = 1
-      activeImageIndex.value = 0
+      selectedImage.value = p.image
+      selectedColor.value = p.colors?.[0] || ''
+      selectedStorage.value = p.storageOptions?.[0] || ''
     }
   },
   { immediate: true }
 )
 
-const currentImage = computed(() => {
-  if (!quickViewProduct.value) return ''
-  const gallery = quickViewProduct.value.gallery || [quickViewProduct.value.image]
-  return gallery[activeImageIndex.value] || quickViewProduct.value.image
-})
-
 const handleAddToCart = () => {
-  if (!quickViewProduct.value) return
-  const variantStr = [selectedColor.value, selectedStorage.value].filter(Boolean).join(' / ')
-  addToCart(quickViewProduct.value, quantity.value, { variant: variantStr })
-  closeQuickView()
+  if (!product.value) return
+  addToCart(
+    product.value,
+    quantity.value,
+    selectedColor.value,
+    selectedStorage.value
+  )
+  quickViewProductId.value = null
 }
 
-const goToFullDetails = () => {
-  if (!quickViewProduct.value) return
-  const id = quickViewProduct.value.id
-  closeQuickView()
+const handleBuyNow = () => {
+  if (!product.value) return
+  addToCart(
+    product.value,
+    quantity.value,
+    selectedColor.value,
+    selectedStorage.value
+  )
+  quickViewProductId.value = null
+  props.navigate('checkout')
+}
+
+const viewFullDetails = () => {
+  if (!product.value) return
+  const id = product.value.id
+  quickViewProductId.value = null
   props.navigate('product', { id })
 }
 </script>
 
 <template>
-  <div v-if="quickViewProduct" class="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 sm:p-6">
-    <!-- Backdrop -->
+  <div v-if="product">
+    <!-- Backdrop Overlay -->
     <div
-      class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs transition-opacity"
-      @click="closeQuickView"
+      class="fixed inset-0 bg-black/40 z-50 transition-opacity"
+      @click="quickViewProductId = null"
     ></div>
 
-    <!-- Modal Content -->
-    <div
-      class="relative w-full max-w-3xl bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden z-10 my-8 p-6 sm:p-8"
-      @click.stop
-    >
-      <!-- Close button -->
-      <button
-        type="button"
-        @click="closeQuickView"
-        class="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900 flex items-center justify-center transition-colors cursor-pointer"
-        aria-label="Close"
+    <!-- Center Dialog Container -->
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div
+        class="bg-white rounded-lg border border-gray-200 shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto relative p-6"
+        @click.stop
       >
-        ✕
-      </button>
+        <!-- Close Button -->
+        <button
+          type="button"
+          @click="quickViewProductId = null"
+          class="absolute top-4 right-4 p-1.5 text-gray-400 hover:text-gray-600 rounded cursor-pointer z-10"
+        >
+          ✕
+        </button>
 
-      <div class="grid grid-cols-1 md:grid-cols-12 gap-6 sm:gap-8 items-start">
-        <!-- Left: Image & Thumbnails (5 cols) -->
-        <div class="md:col-span-5 space-y-3">
-          <div class="relative aspect-square w-full rounded-2xl bg-slate-100 overflow-hidden border border-slate-200">
-            <img
-              :src="currentImage"
-              :alt="quickViewProduct.name"
-              class="w-full h-full object-cover"
-            />
-            <span
-              v-if="quickViewProduct.badge"
-              class="absolute top-3 left-3 px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-slate-900 text-white shadow-xs"
-            >
-              {{ quickViewProduct.badge }}
-            </span>
-          </div>
-
-          <!-- Thumbnails -->
-          <div
-            v-if="quickViewProduct.gallery && quickViewProduct.gallery.length > 1"
-            class="flex items-center gap-2 overflow-x-auto pb-1"
-          >
-            <button
-              v-for="(img, idx) in quickViewProduct.gallery"
-              :key="idx"
-              type="button"
-              @click="activeImageIndex = idx"
-              class="w-14 h-14 rounded-xl overflow-hidden border-2 transition-all shrink-0 cursor-pointer"
-              :class="activeImageIndex === idx ? 'border-indigo-600 ring-2 ring-indigo-100' : 'border-slate-200 opacity-60 hover:opacity-100'"
-            >
-              <img :src="img" :alt="quickViewProduct.name" class="w-full h-full object-cover" />
-            </button>
-          </div>
-        </div>
-
-        <!-- Right: Info & Actions (7 cols) -->
-        <div class="md:col-span-7 flex flex-col justify-between space-y-4">
-          <div>
-            <div class="flex items-center justify-between text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">
-              <span>{{ quickViewProduct.brand }} · SKU: {{ quickViewProduct.sku || 'TN-SKU' }}</span>
-              <span class="text-emerald-600 font-semibold flex items-center gap-1">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                {{ quickViewProduct.stockStatus || 'In Stock' }}
-              </span>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <!-- Left: Image Gallery Preview -->
+          <div class="space-y-3">
+            <div class="aspect-square bg-gray-50 border border-gray-200 rounded overflow-hidden flex items-center justify-center">
+              <img
+                :src="selectedImage || product.image"
+                :alt="product.name"
+                class="w-full h-full object-cover"
+              />
             </div>
 
-            <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 leading-tight">
-              {{ quickViewProduct.name }}
-            </h2>
-
-            <div class="flex items-center gap-3 mt-2">
-              <ProductRating :rating="quickViewProduct.rating || 5" :reviews-count="quickViewProduct.reviewsCount || 0" size="sm" />
-              <span class="text-slate-300">|</span>
-              <span class="text-xs text-slate-500">{{ quickViewProduct.salesCount || 100 }}+ sold</span>
-            </div>
-
-            <!-- Price -->
-            <div class="mt-4">
-              <PriceDisplay :price="quickViewProduct.price" :original-price="quickViewProduct.originalPrice" size="xl" />
-            </div>
-
-            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed mt-3 line-clamp-3">
-              {{ quickViewProduct.description }}
-            </p>
-          </div>
-
-          <!-- Color Option -->
-          <div v-if="quickViewProduct.variants?.colors" class="space-y-2 pt-2 border-t border-slate-100">
-            <span class="text-xs font-bold text-slate-900 block">
-              Color: <span class="text-slate-500 font-normal">{{ selectedColor }}</span>
-            </span>
-            <div class="flex flex-wrap gap-2">
+            <!-- Thumbnail strip -->
+            <div v-if="product.gallery && product.gallery.length > 1" class="flex gap-2">
               <button
-                v-for="color in quickViewProduct.variants.colors"
-                :key="color"
+                v-for="(img, idx) in product.gallery"
+                :key="idx"
                 type="button"
-                @click="selectedColor = color"
-                class="px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer"
-                :class="selectedColor === color ? 'border-indigo-600 bg-indigo-50 text-indigo-700 shadow-xs' : 'border-slate-200 text-slate-700 hover:bg-slate-50'"
+                @click="selectedImage = img"
+                class="w-12 h-12 rounded border cursor-pointer overflow-hidden"
+                :class="selectedImage === img ? 'border-blue-600' : 'border-gray-200 opacity-60 hover:opacity-100'"
               >
-                {{ color }}
+                <img :src="img" class="w-full h-full object-cover" />
               </button>
             </div>
           </div>
 
-          <!-- Storage Option -->
-          <div v-if="quickViewProduct.variants?.storage" class="space-y-2">
-            <span class="text-xs font-bold text-slate-900 block">
-              Storage: <span class="text-slate-500 font-normal">{{ selectedStorage }}</span>
-            </span>
-            <div class="flex flex-wrap gap-2">
+          <!-- Right: Details & Buying Flow -->
+          <div class="flex flex-col justify-between space-y-4 text-xs">
+            <div class="space-y-2">
+              <div>
+                <span class="text-[10px] uppercase font-bold text-gray-400 tracking-wider">
+                  {{ product.brand }} · {{ product.category }}
+                </span>
+                <h2 class="text-base font-bold text-gray-900 mt-0.5">{{ product.name }}</h2>
+              </div>
+
+              <!-- Rating & SKU -->
+              <div class="flex items-center gap-2">
+                <ProductRating :rating="product.rating" size="xs" :count="product.reviewsCount" />
+                <span class="text-gray-300">|</span>
+                <span class="text-gray-400 font-mono text-[11px]">SKU: {{ product.sku }}</span>
+              </div>
+
+              <!-- Price -->
+              <div class="py-2 border-y border-gray-100 flex items-center justify-between">
+                <PriceDisplay :price="product.price" :original-price="product.originalPrice" size="md" />
+                <span
+                  class="font-medium text-[11px]"
+                  :class="product.inStock ? 'text-emerald-600' : 'text-red-600'"
+                >
+                  {{ product.inStock ? `In Stock (${product.stock} units)` : 'Out of Stock' }}
+                </span>
+              </div>
+
+              <!-- Description -->
+              <p class="text-gray-600 leading-relaxed line-clamp-3">
+                {{ product.description }}
+              </p>
+
+              <!-- Color options -->
+              <div v-if="product.colors && product.colors.length > 0" class="space-y-1">
+                <label class="font-bold text-gray-700 block">Color: <span class="font-normal">{{ selectedColor }}</span></label>
+                <div class="flex gap-1.5">
+                  <button
+                    v-for="col in product.colors"
+                    :key="col"
+                    type="button"
+                    @click="selectedColor = col"
+                    class="px-2.5 py-1 rounded border text-xs cursor-pointer transition-colors"
+                    :class="selectedColor === col ? 'border-blue-600 bg-blue-50 text-blue-700 font-semibold' : 'border-gray-200 text-gray-700 hover:bg-gray-50'"
+                  >
+                    {{ col }}
+                  </button>
+                </div>
+              </div>
+
+              <!-- Storage options -->
+              <div v-if="product.storageOptions && product.storageOptions.length > 0" class="space-y-1">
+                <label class="font-bold text-gray-700 block">Capacity: <span class="font-normal">{{ selectedStorage }}</span></label>
+                <div class="flex gap-1.5">
+                  <button
+                    v-for="st in product.storageOptions"
+                    :key="st"
+                    type="button"
+                    @click="selectedStorage = st"
+                    class="px-2.5 py-1 rounded border text-xs cursor-pointer transition-colors"
+                    :class="selectedStorage === st ? 'border-blue-600 bg-blue-50 text-blue-700 font-semibold' : 'border-gray-200 text-gray-700 hover:bg-gray-50'"
+                  >
+                    {{ st }}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Actions row -->
+            <div class="space-y-3 pt-2">
+              <div class="flex items-center gap-3">
+                <span class="font-bold text-gray-700">Quantity:</span>
+                <QuantitySelector
+                  v-model="quantity"
+                  :max="product.stock || 10"
+                  size="sm"
+                />
+              </div>
+
+              <div class="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  @click="handleAddToCart"
+                  :disabled="!product.inStock"
+                  class="py-2.5 px-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-200 text-white font-medium rounded text-xs transition-colors cursor-pointer text-center"
+                >
+                  Add to Cart
+                </button>
+
+                <button
+                  type="button"
+                  @click="handleBuyNow"
+                  :disabled="!product.inStock"
+                  class="py-2.5 px-3 bg-gray-900 hover:bg-gray-800 disabled:bg-gray-200 text-white font-medium rounded text-xs transition-colors cursor-pointer text-center"
+                >
+                  Buy Now
+                </button>
+              </div>
+
               <button
-                v-for="opt in quickViewProduct.variants.storage"
-                :key="opt"
                 type="button"
-                @click="selectedStorage = opt"
-                class="px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer"
-                :class="selectedStorage === opt ? 'border-indigo-600 bg-indigo-50 text-indigo-700 shadow-xs' : 'border-slate-200 text-slate-700 hover:bg-slate-50'"
+                @click="viewFullDetails"
+                class="w-full text-center text-xs text-blue-600 hover:underline font-medium cursor-pointer"
               >
-                {{ opt }}
+                View Full Product Page &rarr;
               </button>
             </div>
-          </div>
-
-          <!-- Quantity & Action Buttons -->
-          <div class="pt-4 border-t border-slate-100 flex flex-col gap-3">
-            <div class="flex items-center gap-3">
-              <QuantitySelector v-model="quantity" :max="quickViewProduct.stock || 10" size="md" />
-
-              <button
-                type="button"
-                @click="handleAddToCart"
-                class="flex-1 py-3 px-6 rounded-xl bg-slate-900 hover:bg-indigo-600 active:bg-indigo-700 text-white font-bold text-xs sm:text-sm shadow-md hover:shadow-lg transition-all cursor-pointer flex items-center justify-center gap-2"
-              >
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                </svg>
-                <span>Add to Cart — ${{ formatPrice(quickViewProduct.price * quantity) }}</span>
-              </button>
-
-              <button
-                type="button"
-                @click="toggleWishlist(quickViewProduct)"
-                class="p-3 rounded-xl border border-slate-200 text-slate-600 hover:text-rose-500 hover:bg-rose-50 transition-colors cursor-pointer"
-                :class="{ 'text-rose-500 !bg-rose-50 !border-rose-200': isInWishlist(quickViewProduct.id) }"
-                title="Wishlist"
-              >
-                <svg class="w-5 h-5" :fill="isInWishlist(quickViewProduct.id) ? 'currentColor' : 'none'" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                </svg>
-              </button>
-            </div>
-
-            <!-- View Full Details Link -->
-            <button
-              type="button"
-              @click="goToFullDetails"
-              class="text-center text-xs font-bold text-indigo-600 hover:text-indigo-800 hover:underline py-1 cursor-pointer"
-            >
-              View Full Product Specifications & Customer Reviews &rarr;
-            </button>
           </div>
         </div>
       </div>

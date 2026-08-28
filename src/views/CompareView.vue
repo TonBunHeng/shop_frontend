@@ -1,5 +1,4 @@
 <script setup>
-import { computed } from 'vue'
 import {
   addToCart,
   allProducts,
@@ -8,7 +7,9 @@ import {
   compareProducts,
   formatPrice,
   removeFromCompare,
+  showToast,
 } from '../data/store'
+import AppIcon from '../components/AppIcon.vue'
 import Breadcrumbs from '../components/Breadcrumbs.vue'
 import EmptyState from '../components/EmptyState.vue'
 import PriceDisplay from '../components/PriceDisplay.vue'
@@ -25,102 +26,78 @@ const handleAddToCart = (product) => {
   addToCart(product, 1)
 }
 
+const addSampleToCompare = (product) => {
+  if (compareList.value.size >= 4) {
+    showToast('Limit Reached', 'You can compare up to 4 products at once.', 'warning')
+    return
+  }
+  compareList.value.add(product.id)
+}
+
 const breadcrumbs = [
   { label: 'Home', page: 'welcome' },
   { label: 'Product Comparison' },
 ]
-
-// List of all comparison spec keys across the compared products
-const comparisonRows = [
-  { key: 'category', label: 'Category', getVal: (p) => p.category?.toUpperCase() },
-  { key: 'brand', label: 'Brand', getVal: (p) => p.brand },
-  { key: 'rating', label: 'Customer Rating', isRating: true },
-  { key: 'stockStatus', label: 'Availability', getVal: (p) => p.stockStatus || 'In Stock' },
-  { key: 'display', label: 'Display Screen', getVal: (p) => p.specifications?.Display || p.specifications?.ScreenSize || 'N/A' },
-  { key: 'processor', label: 'Processor / Chip', getVal: (p) => p.specifications?.Processor || p.specifications?.Sensor || 'N/A' },
-  { key: 'storage', label: 'Memory / Storage', getVal: (p) => p.specifications?.Storage || p.specifications?.Memory || 'N/A' },
-  { key: 'battery', label: 'Battery Life', getVal: (p) => p.specifications?.Battery || p.specifications?.BatteryLife || 'N/A' },
-  { key: 'weight', label: 'Weight', getVal: (p) => p.specifications?.Weight || 'N/A' },
-  { key: 'warranty', label: 'Warranty', getVal: (p) => p.specifications?.Warranty || '2-Year Warranty' },
-]
 </script>
 
 <template>
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8">
-    <!-- Breadcrumbs -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
     <Breadcrumbs :items="breadcrumbs" :navigate="navigate" />
 
-    <!-- Comparison Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-200">
       <div>
-        <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Product Comparison</h1>
-        <p class="text-xs sm:text-sm text-slate-500 mt-1">
-          Comparing <strong>{{ compareProducts.length }}</strong> of 4 maximum devices
+        <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Product Comparison</h1>
+        <p class="text-xs text-gray-500 mt-0.5">
+          Comparing <strong>{{ compareProducts.length }}</strong> devices side-by-side (max 4)
         </p>
       </div>
 
       <div v-if="compareProducts.length > 0" class="flex items-center gap-2">
         <button
           type="button"
-          @click="navigate('shop')"
-          class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors cursor-pointer"
+          @click="clearCompare"
+          class="px-3 py-1.5 border border-gray-300 text-gray-700 hover:bg-gray-50 text-xs font-medium rounded transition-colors cursor-pointer"
         >
-          + Add More Products
+          Clear All
         </button>
         <button
           type="button"
-          @click="clearCompare"
-          class="px-4 py-2 rounded-xl border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-bold transition-colors cursor-pointer"
+          @click="navigate('shop')"
+          class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded transition-colors cursor-pointer"
         >
-          Clear Table
+          + Add More Products
         </button>
       </div>
     </div>
 
-    <!-- Comparison Table / Matrix -->
-    <div v-if="compareProducts.length > 0" class="bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-x-auto">
-      <table class="w-full min-w-[700px] border-collapse text-left text-xs sm:text-sm">
-        <!-- Products Header Row with Images -->
+    <!-- Comparison Table -->
+    <div v-if="compareProducts.length > 0" class="bg-white border border-gray-200 rounded-lg overflow-x-auto">
+      <table class="w-full text-xs text-left border-collapse min-w-[650px]">
         <thead>
-          <tr class="border-b border-slate-200 bg-slate-50/50">
-            <th class="p-5 w-48 font-bold text-slate-400 uppercase tracking-wider text-xs align-top">
-              Device
-            </th>
+          <tr class="border-b border-gray-200 bg-gray-50">
+            <th class="p-4 w-40 font-bold text-gray-700">Product</th>
             <th
-              v-for="p in compareProducts"
-              :key="p.id"
-              class="p-5 align-top border-l border-slate-200"
+              v-for="prod in compareProducts"
+              :key="prod.id"
+              class="p-4 w-60 text-center relative align-top"
             >
-              <div class="relative flex flex-col justify-between h-full space-y-3">
+              <button
+                type="button"
+                @click="removeFromCompare(prod.id)"
+                class="absolute top-2 right-2 text-gray-400 hover:text-red-600 p-1 cursor-pointer"
+                title="Remove from comparison"
+              >
+                ✕
+              </button>
+
+              <div class="space-y-2">
+                <img :src="prod.image" :alt="prod.name" class="w-24 h-24 mx-auto rounded object-cover border border-gray-200" />
+                <h3 class="font-bold text-gray-900 line-clamp-2 text-xs">{{ prod.name }}</h3>
+                <PriceDisplay :price="prod.price" :original-price="prod.originalPrice" size="sm" />
                 <button
                   type="button"
-                  @click="removeFromCompare(p.id)"
-                  class="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-slate-200 hover:bg-rose-100 hover:text-rose-600 text-slate-600 flex items-center justify-center text-xs transition-colors cursor-pointer"
-                  title="Remove from comparison"
-                >
-                  ✕
-                </button>
-
-                <img :src="p.image" :alt="p.name" class="w-24 h-24 rounded-2xl object-cover border border-slate-200 mx-auto" />
-
-                <div class="text-center">
-                  <span class="text-[10px] font-bold text-slate-400 uppercase">{{ p.brand }}</span>
-                  <h3
-                    @click="navigate('product', { id: p.id })"
-                    class="text-xs sm:text-sm font-bold text-slate-900 hover:text-indigo-600 cursor-pointer line-clamp-2 mt-0.5"
-                  >
-                    {{ p.name }}
-                  </h3>
-                </div>
-
-                <div class="text-center pt-2">
-                  <PriceDisplay :price="p.price" :original-price="p.originalPrice" size="md" />
-                </div>
-
-                <button
-                  type="button"
-                  @click="handleAddToCart(p)"
-                  class="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white font-bold text-xs shadow-xs transition-colors cursor-pointer mt-2"
+                  @click="handleAddToCart(prod)"
+                  class="w-full py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded text-xs transition-colors cursor-pointer"
                 >
                   Add to Cart
                 </button>
@@ -129,37 +106,98 @@ const comparisonRows = [
           </tr>
         </thead>
 
-        <!-- Spec Comparison Rows -->
-        <tbody class="divide-y divide-slate-100">
-          <tr v-for="row in comparisonRows" :key="row.key" class="hover:bg-slate-50/60 transition-colors">
-            <td class="p-4 font-bold text-slate-500 text-xs uppercase tracking-wider bg-slate-50/40">
-              {{ row.label }}
+        <tbody class="divide-y divide-gray-200">
+          <tr class="hover:bg-gray-50">
+            <td class="p-3.5 font-bold text-gray-700 bg-gray-50/50">Brand</td>
+            <td v-for="p in compareProducts" :key="p.id" class="p-3.5 text-center text-gray-800">
+              {{ p.brand }}
             </td>
+          </tr>
 
-            <td
-              v-for="p in compareProducts"
-              :key="p.id"
-              class="p-4 border-l border-slate-200 text-slate-800"
-            >
-              <template v-if="row.isRating">
-                <ProductRating :rating="p.rating || 5" :reviews-count="p.reviewsCount || 0" size="xs" />
-              </template>
-              <template v-else>
-                <span class="font-medium">{{ row.getVal(p) }}</span>
-              </template>
+          <tr class="hover:bg-gray-50">
+            <td class="p-3.5 font-bold text-gray-700 bg-gray-50/50">Category</td>
+            <td v-for="p in compareProducts" :key="p.id" class="p-3.5 text-center text-gray-800">
+              {{ p.category }}
+            </td>
+          </tr>
+
+          <tr class="hover:bg-gray-50">
+            <td class="p-3.5 font-bold text-gray-700 bg-gray-50/50">Customer Rating</td>
+            <td v-for="p in compareProducts" :key="p.id" class="p-3.5 text-center">
+              <div class="flex items-center justify-center gap-1 text-xs">
+                <span class="text-amber-500 font-bold flex items-center gap-1">
+                  <AppIcon name="star" size="xs" />
+                  <span>{{ p.rating }}</span>
+                </span>
+                <span class="text-gray-400">({{ p.reviewsCount }})</span>
+              </div>
+            </td>
+          </tr>
+
+          <tr class="hover:bg-gray-50">
+            <td class="p-3.5 font-bold text-gray-700 bg-gray-50/50">Availability</td>
+            <td v-for="p in compareProducts" :key="p.id" class="p-3.5 text-center">
+              <span
+                class="font-semibold text-xs"
+                :class="p.inStock ? 'text-emerald-600' : 'text-red-600'"
+              >
+                {{ p.inStock ? 'In Stock' : 'Out of Stock' }}
+              </span>
+            </td>
+          </tr>
+
+          <tr class="hover:bg-gray-50">
+            <td class="p-3.5 font-bold text-gray-700 bg-gray-50/50">Display / Screen</td>
+            <td v-for="p in compareProducts" :key="p.id" class="p-3.5 text-center text-gray-800 font-mono">
+              {{ p.specs?.display || 'N/A' }}
+            </td>
+          </tr>
+
+          <tr class="hover:bg-gray-50">
+            <td class="p-3.5 font-bold text-gray-700 bg-gray-50/50">Processor / Chip</td>
+            <td v-for="p in compareProducts" :key="p.id" class="p-3.5 text-center text-gray-800 font-mono">
+              {{ p.specs?.processor || p.specs?.sensor || 'N/A' }}
+            </td>
+          </tr>
+
+          <tr class="hover:bg-gray-50">
+            <td class="p-3.5 font-bold text-gray-700 bg-gray-50/50">Memory / Storage</td>
+            <td v-for="p in compareProducts" :key="p.id" class="p-3.5 text-center text-gray-800 font-mono">
+              {{ p.specs?.ram || 'N/A' }} / {{ p.specs?.storage || 'N/A' }}
+            </td>
+          </tr>
+
+          <tr class="hover:bg-gray-50">
+            <td class="p-3.5 font-bold text-gray-700 bg-gray-50/50">Battery / Power</td>
+            <td v-for="p in compareProducts" :key="p.id" class="p-3.5 text-center text-gray-800 font-mono">
+              {{ p.specs?.battery || 'N/A' }}
+            </td>
+          </tr>
+
+          <tr class="hover:bg-gray-50">
+            <td class="p-3.5 font-bold text-gray-700 bg-gray-50/50">Weight</td>
+            <td v-for="p in compareProducts" :key="p.id" class="p-3.5 text-center text-gray-800 font-mono">
+              {{ p.specs?.weight || 'N/A' }}
+            </td>
+          </tr>
+
+          <tr class="hover:bg-gray-50">
+            <td class="p-3.5 font-bold text-gray-700 bg-gray-50/50">Warranty</td>
+            <td v-for="p in compareProducts" :key="p.id" class="p-3.5 text-center text-emerald-700 font-medium">
+              2-Year TechNova Warranty
             </td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <!-- Empty State -->
+    <!-- Empty Compare State -->
     <EmptyState
       v-else
-      icon="compare"
-      title="No devices to compare"
-      description="You can compare specifications of up to 4 laptops, smartphones, headphones, and monitors side by side."
-      action-text="Browse Products"
+      icon="box"
+      title="No products to compare"
+      description="Select up to 4 devices to compare side-by-side across dimensions, chips, battery, and price."
+      action-text="Discover Products to Compare"
       :action-click="() => navigate('shop')"
     />
   </div>
