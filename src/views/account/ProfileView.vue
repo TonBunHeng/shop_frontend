@@ -14,14 +14,14 @@ const form = ref({
   name: currentUser.value?.name || '',
   email: currentUser.value?.email || '',
   phone: currentUser.value?.phone || '+1 (555) 234-5678',
-  avatar: currentUser.value?.avatar || '/public/IMG_9021.jpeg',
+  avatar: currentUser.value?.avatar || '/IMG_9021.jpeg',
 })
 
 const sampleAvatars = [
-  '/public/IMG_9021.jpeg',
-  '/public/IMG_9021.jpeg',
-  '/public/IMG_9021.jpeg',
-  '/public/IMG_9021.jpeg',
+  '/IMG_9021.jpeg',
+  '/IMG_9021.jpeg',
+  '/IMG_9021.jpeg',
+  '/IMG_9021.jpeg',
 ]
 
 const handleSave = () => {

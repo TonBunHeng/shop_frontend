@@ -19,7 +19,7 @@ export const authService = {
           id: `usr_${Date.now()}`,
           name: nameFromEmail || 'Alex Johnson',
           email,
-          avatar: '/public/IMG_9021.jpeg',
+          avatar: '/IMG_9021.jpeg',
           phone: '+1 (555) 234-5678',
           createdAt: '2025-01-15',
           rewardPoints: 1250,
@@ -40,7 +40,7 @@ export const authService = {
           id: `usr_${Date.now()}`,
           name,
           email,
-          avatar: '/public/IMG_9021.jpeg',
+          avatar: '/IMG_9021.jpeg',
           phone: '',
           createdAt: new Date().toISOString().split('T')[0],
           rewardPoints: 100, // Welcome bonus
