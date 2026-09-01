@@ -19,7 +19,7 @@ export const authService = {
           id: `usr_${Date.now()}`,
           name: nameFromEmail || 'Alex Johnson',
           email,
-          avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+          avatar: '/public/IMG_9021.jpeg',
           phone: '+1 (555) 234-5678',
           createdAt: '2025-01-15',
           rewardPoints: 1250,
@@ -40,7 +40,7 @@ export const authService = {
           id: `usr_${Date.now()}`,
           name,
           email,
-          avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80',
+          avatar: '/public/IMG_9021.jpeg',
           phone: '',
           createdAt: new Date().toISOString().split('T')[0],
           rewardPoints: 100, // Welcome bonus

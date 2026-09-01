@@ -727,10 +727,10 @@ export const availableCoupons = {
 // 6. INITIAL USER
 const defaultUser = {
   id: 'usr_technova_demo',
-  name: 'Alex Johnson',
-  email: 'alex.johnson@technova.com',
+  name: 'Ton Bunheng',
+  email: 'ton.bunheng@technova.com',
   phone: '+1 (555) 234-5678',
-  avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+  avatar: '/public/IMG_9021.jpeg',
   createdAt: '2025-01-15',
   rewardPoints: 1250,
 }
@@ -741,7 +741,7 @@ const defaultAddresses = [
     id: 'addr_1',
     title: 'Home Address',
     type: 'Home',
-    fullName: 'Alex Johnson',
+    fullName: 'Ton Bunheng',
     phone: '+1 (555) 234-5678',
     address: '742 Evergreen Terrace, Apt 4B',
     city: 'San Francisco',
@@ -754,7 +754,7 @@ const defaultAddresses = [
     id: 'addr_2',
     title: 'Work Headquarters',
     type: 'Office',
-    fullName: 'Alex Johnson (TechNova HQ)',
+    fullName: 'Ton Bunheng (TechNova HQ)',
     phone: '+1 (555) 987-6543',
     address: '500 Howard Street, Suite 1200',
     city: 'San Francisco',
@@ -801,7 +801,7 @@ const defaultOrders = [
     total: 423.36,
     paymentMethod: 'Credit Card (•••• 4242)',
     shippingAddress: {
-      fullName: 'Alex Johnson',
+      fullName: 'Ton Bunheng',
       address: '742 Evergreen Terrace, Apt 4B',
       city: 'San Francisco, CA 94107',
       phone: '+1 (555) 234-5678',
@@ -1434,7 +1434,7 @@ export const loginUser = (email, password) => {
     id: `usr_${Date.now()}`,
     name: nameFromEmail,
     email,
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+    avatar: '/public/IMG_9021.jpeg',
     phone: '+1 (555) 234-5678',
     createdAt: '2025-01-15',
     rewardPoints: 1250,
@@ -1447,7 +1447,7 @@ export const registerUser = (name, email) => {
     id: `usr_${Date.now()}`,
     name,
     email,
-    avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80',
+    avatar: '/public/IMG_9021.jpeg',
     phone: '',
     createdAt: new Date().toISOString().split('T')[0],
     rewardPoints: 150, // Welcome reward bonus

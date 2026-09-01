@@ -9,7 +9,7 @@ const props = defineProps({
   },
 })
 
-const email = ref('alex.johnson@technova.com')
+const email = ref('ton.bunheng@technova.com')
 const password = ref('password123')
 const rememberMe = ref(true)
 const showPassword = ref(false)
@@ -30,7 +30,7 @@ const handleLogin = () => {
 }
 
 const fillDemo = () => {
-  email.value = 'alex.johnson@technova.com'
+  email.value = 'ton.bunheng@technova.com'
   password.value = 'password123'
   handleLogin()
 }

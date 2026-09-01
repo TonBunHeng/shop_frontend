@@ -26,9 +26,9 @@ const isSubmitting = ref(false)
 
 // Customer & Shipping Info
 const customerForm = ref({
-  firstName: currentUser.value?.name ? currentUser.value.name.split(' ')[0] : 'Alex',
-  lastName: currentUser.value?.name ? currentUser.value.name.split(' ').slice(1).join(' ') : 'Johnson',
-  email: currentUser.value?.email || 'alex.johnson@technova.com',
+  firstName: currentUser.value?.name ? currentUser.value.name.split(' ')[0] : 'Ton',
+  lastName: currentUser.value?.name ? currentUser.value.name.split(' ').slice(1).join(' ') : 'Bunheng',
+  email: currentUser.value?.email || 'ton.bunheng@technova.com',
   phone: currentUser.value?.phone || '+1 (555) 234-5678',
   address: currentUser.value?.address || '742 Evergreen Terrace, Apt 4B',
   city: currentUser.value?.city ? currentUser.value.city.split(',')[0] : 'San Francisco',

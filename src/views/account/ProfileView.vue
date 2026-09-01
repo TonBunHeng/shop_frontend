@@ -14,14 +14,14 @@ const form = ref({
   name: currentUser.value?.name || '',
   email: currentUser.value?.email || '',
   phone: currentUser.value?.phone || '+1 (555) 234-5678',
-  avatar: currentUser.value?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+  avatar: currentUser.value?.avatar || '/public/IMG_9021.jpeg',
 })
 
 const sampleAvatars = [
-  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
-  'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80',
-  'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=200&q=80',
-  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
+  '/public/IMG_9021.jpeg',
+  '/public/IMG_9021.jpeg',
+  '/public/IMG_9021.jpeg',
+  '/public/IMG_9021.jpeg',
 ]
 
 const handleSave = () => {

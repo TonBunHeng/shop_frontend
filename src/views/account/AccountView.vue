@@ -56,7 +56,7 @@ const breadcrumbs = [
     <div class="bg-white border border-gray-200 rounded-lg p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
       <div class="flex items-center gap-4 text-center sm:text-left">
         <img
-          :src="currentUser?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'"
+          :src="currentUser?.avatar || '../../public/images/IMG_9021.jpeg'"
           :alt="currentUser?.name || 'Shopper'"
           class="w-14 h-14 rounded-full object-cover border border-gray-300 shrink-0"
         />
